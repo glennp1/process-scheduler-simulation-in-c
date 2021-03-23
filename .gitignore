@@ -4,3 +4,8 @@
 # CLion Files
 .idea/
 
+# Main executable file
+allocate
+
+# Other executable files
+*.o
