@@ -1,3 +1,6 @@
 # Directory Structure Files
 .DS_Store
 
+# CLion Files
+.idea/
+
