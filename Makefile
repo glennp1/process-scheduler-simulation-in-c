@@ -20,7 +20,7 @@ hello.o: hello.c hello.h
 .PHONY: clean
 
 clean:
-	rm allocate main.o hello.o
+	rm -f allocate main.o hello.o
 
 
 # Template from COMP20007
