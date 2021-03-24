@@ -1,5 +1,8 @@
 Headers
 https://www.youtube.com/watch?v=v7nPeFgLqZs&ab_channel=BestDotNetTraining
 
+Headers - More Useful
+https://opensource.com/article/19/7/structure-multi-file-c-part-2
+
 Makefiles
 https://www.youtube.com/watch?v=ygoRdBBOdYU&ab_channel=MyGeekAdventures

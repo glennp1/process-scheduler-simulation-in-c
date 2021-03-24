@@ -14,4 +14,4 @@
 // --- Function Prototypes ---
 void say_hello();
 
-#endif
+#endif // HELLO_H

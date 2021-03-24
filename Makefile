@@ -10,7 +10,7 @@ CFLAGS=-I -Wall
 allocate: main.o hello.o
 	$(CC) $(CFLAGS) -o allocate main.o hello.o
 
-main.o: main.c main.h
+main.o: main.c
 	$(CC) $(CFLAGS) -c main.c
 
 
