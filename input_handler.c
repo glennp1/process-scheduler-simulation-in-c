@@ -55,6 +55,6 @@ input_arguments_t handle_input(int num_arguments, char *arguments[]) {
 }
 
 // frees the memory allocated for the input
-void free_input() {
+void free_input(input_arguments_t input) {
     free(input.filename);
 }

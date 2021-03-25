@@ -6,7 +6,7 @@
 #define INPUT_HANDLER_H
 
 // --- System Libraries ---
-#include <stdio.h> // for input / output
+#include <stdio.h> // for input / output // todo maybe remove?
 #include <stdlib.h> // for atoi
 #include <stdbool.h> // for booleans
 #include <string.h> // for strcmp
@@ -31,6 +31,6 @@ typedef struct {
 // --- Function Prototypes ---
 input_arguments_t handle_input(int num_arguments, char *arguments[]);
 
-void free_input();
+void free_input(input_arguments_t input);
 
 #endif //INPUT_HANDLER_H
