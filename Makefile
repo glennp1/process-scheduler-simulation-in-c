@@ -7,20 +7,19 @@
 CC=gcc
 CFLAGS=-I -Wall
 
-allocate: main.o hello.o
-	$(CC) $(CFLAGS) -o allocate main.o hello.o
+allocate: main.o input_handler.o
+	$(CC) $(CFLAGS) -o allocate main.o input_handler.o
 
 main.o: main.c
 	$(CC) $(CFLAGS) -c main.c
 
-
-hello.o: hello.c hello.h
-	$(CC) $(CFLAGS) -c hello.c
+input_handler.o: input_handler.c input_handler.h
+	$(CC) $(CFLAGS) -c input_handler.c
 
 .PHONY: clean
 
 clean:
-	rm -f allocate main.o hello.o
+	rm -f allocate main.o input_handler.o
 
 
 # Template from COMP20007
