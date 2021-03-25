@@ -2,47 +2,34 @@
 # 2021 Semester 1
 #
 # Assignment 1 Makefile
-# By Glenn Phillips (820624)
+# Implementation by Glenn Phillips (820624)
+#
+# Template by Tobias Edwards
+# COMP20007 Design of Algorithms, 2019 Semester 1, Assignment 1
 
-CC=gcc
-CFLAGS=-I -Wall
+# Variables
+CC		= gcc
+CFLAGS	= -I -Wall
+EXE		= allocate
+OBJ		= main.o input_handler.o process_reader.o
 
-allocate: main.o input_handler.o
-	$(CC) $(CFLAGS) -o allocate main.o input_handler.o
+# Handles "$ make" and "$ make all"
+all: $(EXE)
 
-main.o: main.c
-	$(CC) $(CFLAGS) -c main.c
+# The main executable
+$(EXE): $(OBJ)
+	$(CC) $(CFLAGS) -o $(EXE) $(OBJ)
 
-input_handler.o: input_handler.c input_handler.h
+# Other dependencies
+input_handler.o: input_handler.h input_handler.c
 	$(CC) $(CFLAGS) -c input_handler.c
+process_reader.o: process_reader.h process_reader.c
+	$(CC) $(CFLAGS) -c process_reader.c
 
-.PHONY: clean
+# "clean" and "all" don't actually create files called "clean" and "all"
+# and are therefore "Phony Targets"
+.PHONY: clean all
 
+# Removes the object and executable files
 clean:
-	rm -f allocate main.o input_handler.o
-
-
-# Template from COMP20007
-
-#CC     = gcc
-#CFLAGS = -Wall
-#ALL    = p1 p2 p3
-#
-#all: $(ALL)
-#
-#P1_FILES = p1.c
-#p1: $(P1_FILES)
-#$(CC) $(CFLAGS) -o p1 $(P1_FILES)
-#
-#P2_FILES = p2.c graph.c priorityqueue.c list.c
-#p2: $(P2_FILES)
-#$(CC) $(CFLAGS) -o p2 $(P2_FILES)
-#
-#P3_FILES = p3.c
-#p3: $(P3_FILES)
-#$(CC) $(CFLAGS) -o p3 $(P3_FILES)
-#
-#.PHONY: clean
-#
-#clean:
-#rm -f $(ALL)
+	rm -f $(EXE) $(OBJ)

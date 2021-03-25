@@ -7,16 +7,13 @@
 
 // --- Project Libraries ---
 #include "input_handler.h"
-
-// todo implement
-//#include "process.h"
+#include "process_reader.h"
 
 // --- Constant Definitions ---
 
 // --- Type Definitions ---
 
 // --- Function Prototypes ---
-int main(int argc, char *argv[]);
 
 // --- Function Implementations ---
 int main(int argc, char *argv[]) {
@@ -36,6 +33,9 @@ int main(int argc, char *argv[]) {
 
 
     // print final results
+
+    // free data
+    free_input();
 
     return 0;
 }

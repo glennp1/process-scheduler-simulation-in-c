@@ -23,12 +23,14 @@
 
 // --- Type Definitions ---
 typedef struct {
-    char* filename;
-    int processors;
-    bool challenge;
+    char* filename; // the file describing the processes
+    int processors; // the number of processors [1, 1024]
+    bool challenge; // true if the scheduler from the challenge activity is invoked
 } input_arguments_t;
 
 // --- Function Prototypes ---
 input_arguments_t handle_input(int num_arguments, char *arguments[]);
+
+void free_input();
 
 #endif //INPUT_HANDLER_H

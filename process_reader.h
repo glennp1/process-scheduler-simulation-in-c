@@ -2,8 +2,8 @@
 // Created by Glenn Phillips on 25/3/21.
 //
 
-#ifndef PROCESS_H
-#define PROCESS_H
+#ifndef PROCESS_READER_H
+#define PROCESS_READER_H
 
 // --- System Libraries ---
 
@@ -22,7 +22,10 @@ typedef struct {
     bool parallelisable; // n (false) or p (true)
 } process_t;
 
+// todo implement appropriate data structure
+typedef process_t[4294967296] processes_arr_t;
+
 // --- Function Prototypes ---
 
 
-#endif //PROCESS_H
+#endif //PROCESS_READER_H
