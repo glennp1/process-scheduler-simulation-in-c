@@ -8,6 +8,7 @@
 // --- Project Libraries ---
 #include "input_handler.h"
 #include "process.h"
+#include "priority_queue.h"
 
 // --- Constant Definitions ---
 
@@ -28,7 +29,21 @@ int main(int argc, char *argv[]) {
 
     // read in processes
     // todo save this in queue
-    read_in_processes(input.filename);
+    priority_queue_t *queuing_processes = queue_processes(input.filename);
+
+    // todo temporary print
+    // while the queue is not empty
+    process_t removed_process;
+    while(!priority_queue_is_empty(queuing_processes)) {
+
+        // remove a process and print it
+        removed_process = priority_queue_remove_min(queuing_processes);
+
+        printf("%d %d %d %c\n", removed_process.time_arrived,
+               removed_process.process_id, removed_process.execution_time,
+               removed_process.parallelisable);
+    }
+
 
     // execute
 

@@ -18,18 +18,18 @@
 #include "process.h"
 
 // --- Type Definitions ---
-typedef struct node node_t;
+typedef struct node_s node_t;
 
 // a list node points to the next node in the list, and to some data
-struct node {
+struct node_s {
     node_t *next;
-    int key;
+    process_t process;
     int priority;
 };
 
 // a priority_queue points to its first and last nodes, and stores its size
 // i.e., (num. nodes)
-struct priority_queue {
+struct priority_queue_s {
     node_t *head;
     node_t *tail;
     int size;
@@ -47,8 +47,8 @@ void free_pq_node(node_t *node);
 // --- Function Implementations ---
 
 // create a new queue and return a pointer to it
-PriorityQueue *new_priority_queue() {
-    PriorityQueue *queue = malloc(sizeof *queue);
+priority_queue_t *new_priority_queue() {
+    priority_queue_t *queue = malloc(sizeof *queue);
     assert(queue);
 
     queue->head = NULL;
@@ -59,7 +59,7 @@ PriorityQueue *new_priority_queue() {
 }
 
 // destroy a queue and free its memory
-void free_priority_queue(PriorityQueue *queue) {
+void free_priority_queue(priority_queue_t *queue) {
     assert(queue != NULL);
     // free each node
     node_t *node = queue->head;
@@ -87,12 +87,12 @@ void free_pq_node(node_t *node) {
 }
 
 // insert an element into the queue
-void priority_queue_insert(PriorityQueue *queue, int key, int priority) {
+void priority_queue_insert(priority_queue_t *queue, process_t process, int priority) {
     assert(queue != NULL);
 
     // create and initialise a new queue node
     node_t *node = new_pq_node();
-    node->key = key;
+    node->process = process;
     node->priority = priority;
     node->next = queue->head; // next will be the old first node (may be null)
 
@@ -108,8 +108,8 @@ void priority_queue_insert(PriorityQueue *queue, int key, int priority) {
     queue->size++;
 }
 
-// remove the element with the lowest priority and return the key
-int priority_queue_remove_min(PriorityQueue *queue) {
+// remove the element with the lowest priority and return the process
+process_t priority_queue_remove_min(priority_queue_t *queue) {
     assert(queue != NULL);
     assert(queue->size > 0);
 
@@ -134,8 +134,8 @@ int priority_queue_remove_min(PriorityQueue *queue) {
         node = node->next;
     }
 
-    // Save the key
-    int key = min_node->key;
+    // Save the process
+    process_t process = min_node->process;
 
     // If we're the head or the tail then we better update that we're removing
     // this node
@@ -158,30 +158,31 @@ int priority_queue_remove_min(PriorityQueue *queue) {
     free_pq_node(min_node);
 
     // done!
-    return key;
+    return process;
 }
 
-// update an elements priority in the queue by key
-// returns whether or not this was succesful (i.e., the key was already
+// todo change this to process time remaining???
+// update an elements priority in the queue by process
+// returns whether or not this was succesful (i.e., the process was already
 // in the queue)
-bool priority_queue_update(PriorityQueue *queue, int key, int new_priority) {
-    assert(queue != NULL);
-
-    node_t *node = queue->head;
-    while (node != NULL) {
-        if (node->key == key) {
-            node->priority = new_priority;
-            return true;
-        }
-
-        node = node->next;
-    }
-
-    return false;
-}
+//bool priority_queue_update(priority_queue_t *queue, process_t process, int new_priority) {
+//    assert(queue != NULL);
+//
+//    node_t *node = queue->head;
+//    while (node != NULL) {
+//        if (node->process == process) {
+//            node->priority = new_priority;
+//            return true;
+//        }
+//
+//        node = node->next;
+//    }
+//
+//    return false;
+//}
 
 // returns whether the queue contains no elements (true) or some elements (false)
-bool priority_queue_is_empty(PriorityQueue *queue) {
+bool priority_queue_is_empty(priority_queue_t *queue) {
     assert(queue != NULL);
     return (queue->size==0);
 }

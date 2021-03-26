@@ -15,32 +15,35 @@
 #include <stdbool.h>
 
 // --- Project Libraries ---
-
+#include "process.h"
 
 // --- Constant Definitions ---
 
 // --- Type Definitions ---
-typedef struct priority_queue PriorityQueue;
+typedef struct process_s process_t; // forward declaration so it compiles
+
+typedef struct priority_queue_s priority_queue_t;
 
 // --- Function Prototypes ---
 // create a new queue and return a pointer to it
-PriorityQueue *new_priority_queue();
+priority_queue_t *new_priority_queue();
 
 // destroy a queue and free its memory
-void free_priority_queue(PriorityQueue *queue);
+void free_priority_queue(priority_queue_t *queue);
 
 // insert an element into the queue
-void priority_queue_insert(PriorityQueue *queue, int key, int priority);
+void priority_queue_insert(priority_queue_t *queue, process_t process, int priority);
 
-// remove the element with the lowest priority and return the key
-int priority_queue_remove_min(PriorityQueue *queue);
+// remove the element with the lowest priority and return the process
+process_t priority_queue_remove_min(priority_queue_t *queue);
 
-// update an elements priority in the queue by key
-// returns whether or not this was succesful (i.e., the key was already
+// todo change this to process time remaining???
+// update an elements priority in the queue by process
+// returns whether or not this was succesful (i.e., the process was already
 // in the queue)
-bool priority_queue_update(PriorityQueue *queue, int key, int new_priority);
+bool priority_queue_update(priority_queue_t *queue, process_t process, int new_priority);
 
 // returns whether the queue contains no elements (true) or some elements (false)
-bool priority_queue_is_empty(PriorityQueue *queue);
+bool priority_queue_is_empty(priority_queue_t *queue);
 
 #endif //PRIORITY_QUEUE_H

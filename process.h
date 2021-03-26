@@ -6,25 +6,27 @@
 #define PROCESS_H
 
 // --- System Libraries ---
-#include <stdlib.h>
-#include <stdio.h> // todo maybe remove
 
 // --- Project Libraries ---
-
+#include "priority_queue.h"
 
 // --- Constant Definitions ---
 
 
 // --- Type Definitions ---
+typedef struct priority_queue_s priority_queue_t; // forward declaration so it compiles
+
+typedef struct process_s process_t;
+
 // todo store each process
-typedef struct {
+struct process_s {
     unsigned int time_arrived; // [0, 2^32)
     unsigned int process_id; // [0, 2^32)
     unsigned int execution_time; // [1, 2^32)
     char parallelisable; // n (not parallelisable) or p (parallelisable)
-} process_t;
+};
 
 // --- Function Prototypes ---
-void read_in_processes(char* filename);
+priority_queue_t *queue_processes(char* filename);
 
 #endif //PROCESS_H
