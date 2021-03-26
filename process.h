@@ -2,8 +2,8 @@
 // Created by Glenn Phillips on 25/3/21.
 //
 
-#ifndef PROCESS_READER_H
-#define PROCESS_READER_H
+#ifndef PROCESS_H
+#define PROCESS_H
 
 // --- System Libraries ---
 #include <stdlib.h>
@@ -27,4 +27,4 @@ typedef struct {
 // --- Function Prototypes ---
 void read_in_processes(char* filename);
 
-#endif //PROCESS_READER_H
+#endif //PROCESS_H
