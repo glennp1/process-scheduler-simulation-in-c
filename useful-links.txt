@@ -6,3 +6,6 @@ https://opensource.com/article/19/7/structure-multi-file-c-part-2
 
 Makefiles
 https://www.youtube.com/watch?v=ygoRdBBOdYU&ab_channel=MyGeekAdventures
+
+Reading File
+https://www.geeksforgeeks.org/scanf-and-fscanf-in-c-simple-yet-poweful/
