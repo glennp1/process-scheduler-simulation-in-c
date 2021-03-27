@@ -23,8 +23,8 @@ typedef struct node_s node_t;
 // a list node points to the next node in the list, and to some data
 struct node_s {
     node_t *next;
-    process_t process;
-    int priority;
+    process_t *process;
+    unsigned int priority;
 };
 
 // todo not sure if useful
@@ -34,15 +34,6 @@ typedef struct min_node_pair_s min_node_pair_t;
 struct min_node_pair_s {
     node_t *min_prev;
     node_t *min_node;
-};
-
-
-// a priority_queue points to its first and last nodes, and stores its size
-// i.e., (num. nodes)
-struct priority_queue_s {
-    node_t *head;
-    node_t *tail;
-    int size;
 };
 
 // --- Function Prototypes ---
@@ -89,21 +80,8 @@ void free_priority_queue(priority_queue_t *queue) {
     free(queue);
 }
 
-// helper function to create a new node and return its address
-node_t *new_pq_node() {
-    node_t *node = malloc(sizeof *node);
-    assert(node);
-
-    return node;
-}
-
-// helper function to clear memory of a node
-void free_pq_node(node_t *node) {
-    free(node);
-}
-
 // insert an element into the queue
-void priority_queue_insert(priority_queue_t *queue, process_t process, int priority) {
+void priority_queue_insert(priority_queue_t *queue, process_t *process, unsigned int priority) {
     assert(queue != NULL);
 
     // create and initialise a new queue node
@@ -125,22 +103,82 @@ void priority_queue_insert(priority_queue_t *queue, process_t process, int prior
 }
 
 // remove the element with the lowest priority and return the process
-process_t priority_queue_remove_min(priority_queue_t *queue) {
+process_t *priority_queue_remove_min(priority_queue_t *queue) {
 
     // find the min node pair associated with the lowest priority element
     min_node_pair_t min_node_pair = find_min_pq_node(queue);
 
     // save the process stored in the min node
-    process_t process = min_node_pair.min_node->process;
+    process_t *process = min_node_pair.min_node->process;
 
     // safely remove the min node
     remove_pq_node(queue, min_node_pair.min_prev, min_node_pair.min_node);
 
-    // done!
+    // return the process
     return process;
 }
 
-// todo replace node pair with node update using pointers
+// tries to remove the element with the lowest priority, if the priority
+// equals a value then return the process, otherwise return a null pointer
+process_t *priority_queue_remove_min_if_equals(priority_queue_t *queue, unsigned int value) {
+
+    // find the min node pair associated with the lowest priority element
+    min_node_pair_t min_node_pair = find_min_pq_node(queue);
+
+    // check if the min node's priority is equal to the designated value
+    if (min_node_pair.min_node->priority == value) {
+        // save the process stored in the min node
+        process_t *process = min_node_pair.min_node->process;
+
+        // safely remove the min node
+        remove_pq_node(queue, min_node_pair.min_prev, min_node_pair.min_node);
+
+        // return the process
+        return process;
+    }
+    else {
+        // return a null pointer
+        return NULL;
+    }
+}
+
+
+// todo change this to process time remaining???
+// update an elements priority in the queue by process
+// returns whether or not this was succesful (i.e., the process was already
+// in the queue)
+//bool priority_queue_update(priority_queue_t *queue, process_t process, int new_priority) {
+//    assert(queue != NULL);
+//
+//    node_t *node = queue->head;
+//    while (node != NULL) {
+//        if (node->process == process) {
+//            node->priority = new_priority;
+//            return true;
+//        }
+//
+//        node = node->next;
+//    }
+//
+//    return false;
+//}
+
+// returns whether the queue contains no elements (true) or some elements (false)
+bool priority_queue_is_empty(priority_queue_t *queue) {
+    assert(queue != NULL);
+    return (queue->size==0);
+}
+
+// *** Helper Function Implementations
+
+// helper function to create a new node and return its address
+node_t *new_pq_node() {
+    node_t *node = malloc(sizeof *node);
+    assert(node);
+
+    return node;
+}
+
 // helper function to find the element with the lowest priority,
 // then return this lowest element and the node prior to it as a min node pair
 min_node_pair_t find_min_pq_node(priority_queue_t *queue) {
@@ -149,11 +187,11 @@ min_node_pair_t find_min_pq_node(priority_queue_t *queue) {
 
     node_t *min_prev = NULL;
     node_t *min_node = queue->head;
-    int min_priority = min_node->priority;
+    unsigned int min_priority = min_node->priority;
 
     node_t *prev = queue->head;
     node_t *node = queue->head->next;
-    int priority;
+    unsigned int priority;
     while (node != NULL) {
         priority = node->priority;
 
@@ -183,7 +221,8 @@ void remove_pq_node(priority_queue_t *queue, node_t *prev, node_t *this) {
 
     if (this == queue->head) {
         queue->head = queue->head->next; // update the head
-    } else {
+    }
+    else {
         assert(prev != NULL); // if the previous node exists
         assert(prev->next == this); // if the previous node is directly before the minimum
         prev->next = this->next; // the previous node's next is the minimum's next
@@ -199,28 +238,8 @@ void remove_pq_node(priority_queue_t *queue, node_t *prev, node_t *this) {
     free_pq_node(this);
 }
 
-// todo change this to process time remaining???
-// update an elements priority in the queue by process
-// returns whether or not this was succesful (i.e., the process was already
-// in the queue)
-//bool priority_queue_update(priority_queue_t *queue, process_t process, int new_priority) {
-//    assert(queue != NULL);
-//
-//    node_t *node = queue->head;
-//    while (node != NULL) {
-//        if (node->process == process) {
-//            node->priority = new_priority;
-//            return true;
-//        }
-//
-//        node = node->next;
-//    }
-//
-//    return false;
-//}
-
-// returns whether the queue contains no elements (true) or some elements (false)
-bool priority_queue_is_empty(priority_queue_t *queue) {
-    assert(queue != NULL);
-    return (queue->size==0);
+// helper function to clear memory of a node
+void free_pq_node(node_t *node) {
+    free(node);
 }
+

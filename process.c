@@ -4,34 +4,64 @@
 
 // --- System Libraries ---
 #include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
+#include <stdbool.h>
 
 // --- Project Libraries ---
 #include "process.h"
 
 // --- Function Implementations ---
+// create a new process and return a pointer to it
+process_t *new_process() {
+    process_t *process = malloc(sizeof *process);
+    // check the process was successfully created
+    assert(process);
+
+    return process;
+}
+
+// destroy a process and free its memory
+void free_process(process_t *process) {
+    // check the process is not a null pointer
+    assert(process != NULL);
+
+    // free the process itself
+    free(process);
+}
 
 // loads processes from the specified file and returns them as a priority queue
+// with priorities based on time arrived
 priority_queue_t *queue_processes(char* filename) {
 
     // create a new pointer to a new priority queue
     priority_queue_t *queuing_processes = new_priority_queue();
 
-    // to keep track of the current process being read in from the file
-    process_t curr_process;
+    // for items being read in
+    unsigned int time_arrived;
+    unsigned int process_id;
+    unsigned int execution_time;
+    char parallelisable;
 
-    // to increment the priority each time,
-    // effectively creating a normal queue
-    int priority_count = 0;
+    // to keep track of the current process being read in from the file
+    process_t *curr_process = new_process();
 
     // read from the specified file
     FILE *file = fopen(filename, "r");
 
     // while the scanner continues to read the processes in from the file
-    while (fscanf(file, "%d %d %d %c", &curr_process.time_arrived,
-            &curr_process.process_id, &curr_process.execution_time, &curr_process.parallelisable) == 4) {
+    while (fscanf(file, "%u %u %u %c", &time_arrived, &process_id,
+                  &execution_time, &parallelisable) == 4) {
 
-        // add the process to the queuing process with the priority increasing each time
-        priority_queue_insert(queuing_processes, curr_process, priority_count++);
+        // create a new process and add each of the fields to it
+        curr_process = new_process();
+        curr_process->time_arrived = time_arrived;
+        curr_process->process_id = process_id;
+        curr_process->execution_time = execution_time;
+        curr_process->parallelisable = (parallelisable == 'p') ? true : false;
+
+        // add the process to the queuing process with the priority matching the time arrived
+        priority_queue_insert(queuing_processes, curr_process, curr_process->time_arrived);
     }
 
     // once done close the file

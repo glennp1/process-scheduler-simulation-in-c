@@ -3,7 +3,8 @@
 //
 
 // --- System Libraries ---
-
+#include <stdbool.h>
+#include <stdio.h> // todo remove?
 
 // --- Project Libraries ---
 #include "input_handler.h"
@@ -25,7 +26,7 @@ int main(int argc, char *argv[]) {
     // todo temporary print
     printf("filename: %s\n", input.filename);
     printf("number of processors: %d\n", input.processors);
-    printf("own scheduler: %s\n", input.challenge ? "true" : "false");
+    printf("challenge: %s\n", input.challenge ? "true" : "false");
 
     // read in processes
     // todo save this in queue
@@ -33,18 +34,49 @@ int main(int argc, char *argv[]) {
 
     // todo temporary print
     // while the queue is not empty
-    process_t removed_process;
-    while(!priority_queue_is_empty(queuing_processes)) {
+    process_t *removed_process;
 
-        // remove a process and print it
-        removed_process = priority_queue_remove_min(queuing_processes);
-
-        printf("%d %d %d %c\n", removed_process.time_arrived,
-               removed_process.process_id, removed_process.execution_time,
-               removed_process.parallelisable);
-    }
 
     unsigned int curr_time = 0;
+
+    // todo remove processes matching time
+    while(!priority_queue_is_empty(queuing_processes)) {
+
+        printf("** %u **\n", curr_time);
+
+        while (!priority_queue_is_empty(queuing_processes)) {
+            removed_process = priority_queue_remove_min_if_equals(
+                    queuing_processes, curr_time);
+
+            if (removed_process != NULL) {
+                printf("%u %u %u %c\n", removed_process->time_arrived,
+                       removed_process->process_id, removed_process->execution_time,
+                       removed_process->parallelisable ? 'p' : 'n');
+                free_process(removed_process);
+            }
+            else {
+                break;
+            }
+        }
+
+        curr_time++;
+    }
+
+
+
+//
+//
+//    // todo remove remaining processes
+//    while(!priority_queue_is_empty(queuing_processes)) {
+//
+//        // remove a process and print it
+//        removed_process = priority_queue_remove_min(queuing_processes);
+//
+//        printf("%u %u %u %c\n", removed_process->time_arrived,
+//               removed_process->process_id, removed_process->execution_time,
+//               removed_process->parallelisable ? 'p' : 'n');
+//        free_process(removed_process);
+//    }
 
     //printf("%d", queuing_processes->head->process.time_arrived);
 
