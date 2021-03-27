@@ -5,6 +5,7 @@
 // --- System Libraries ---
 #include <stdbool.h>
 #include <stdio.h> // todo remove?
+#include <math.h> // todo remove
 
 // --- Project Libraries ---
 #include "input_handler.h"
@@ -32,29 +33,26 @@ int main(int argc, char *argv[]) {
     // create a new simulation
     simulation_t *simulation = new_simulation(input);
 
-
-
     // todo merge this function with main or pass queues to function
     start_simulation(simulation);
 
     // todo print final results
 
+    // todo testing ints
+    // todo unsigned int is perfect for 2^32 - 1
+    unsigned int test = 4294967295;
+    printf("%u\n", test);
+
+    // todo unsigned long is perfect for 2^64 - 1
+    unsigned long int test_two = pow(2, 63) * 1.999999999999999;
+    printf("%lu\n", test_two);
 
 
-    // todo free simulation
+    // free simulation
     free_simulation(simulation);
 
     // free input data
     free_input(input);
-
-    // todo remove remaining processes
-//    process_t *removed_process;
-//    while(!priority_queue_is_empty(queuing_processes)) {
-//
-//        // remove a process and free it
-//        removed_process = priority_queue_remove_min(queuing_processes);
-//        free_process(removed_process);
-//    }
 
     return 0;
 }

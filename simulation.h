@@ -10,11 +10,14 @@
 // --- Project Libraries ---
 #include "priority_queue.h"
 #include "input_handler.h"
+#include "cpu.h"
 
 // --- Constant Definitions ---
 
 // --- Type Definitions ---
 typedef struct priority_queue_s priority_queue_t; // forward declaration so it compiles
+
+typedef struct cpu_s cpu_t; // forward declaration so it compiles
 
 typedef struct simulation_s simulation_t;
 
@@ -25,10 +28,7 @@ struct simulation_s {
     priority_queue_t *shortest_arrivals;
 
     // todo change this later to cpu
-    priority_queue_t *waiting;
-    priority_queue_t *shortest_waiting;
-    priority_queue_t *running;
-    priority_queue_t *finished;
+    cpu_t *cpu;
 
     // for printing updates
     priority_queue_t *started_this_tick;
@@ -47,7 +47,7 @@ void start_simulation(simulation_t *simulation);
 // performs one tick (second) of the specified simulation
 void perform_simulation_tick(simulation_t *simulation, unsigned int curr_tick);
 
-// destroy a simulation and free its memory
+// destroy a simulation and free all of its associated memory
 void free_simulation(simulation_t *simulation);
 
 #endif //SIMULATION_H

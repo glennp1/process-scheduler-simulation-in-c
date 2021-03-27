@@ -24,7 +24,7 @@
 simulation_t *new_simulation(input_arguments_t input) {
 
     simulation_t *simulation = malloc(sizeof *simulation);
-    // check the process was successfully created
+    // check the simulation was successfully created
     assert(simulation);
 
     simulation->all_processes = new_priority_queue();
@@ -33,10 +33,7 @@ simulation_t *new_simulation(input_arguments_t input) {
     simulation->shortest_arrivals = new_priority_queue();
 
     // todo change this later to cpu
-    simulation->waiting = new_priority_queue();
-    simulation->shortest_waiting = new_priority_queue();
-    simulation->running = new_priority_queue();
-    simulation->finished = new_priority_queue();
+    simulation->cpu = new_cpu();
 
     // for printing updates
     simulation->started_this_tick = new_priority_queue();
@@ -142,10 +139,7 @@ void free_simulation(simulation_t *simulation) {
     free_priority_queue(simulation->shortest_arrivals);
 
     // todo change this later to cpu
-    free_priority_queue(simulation->waiting);
-    free_priority_queue(simulation->shortest_waiting);
-    free_priority_queue(simulation->running);
-    free_priority_queue(simulation->finished);
+    free_cpu(simulation->cpu);
 
     // for printing updates
     free_priority_queue(simulation->started_this_tick);
