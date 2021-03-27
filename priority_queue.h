@@ -35,11 +35,18 @@ struct priority_queue_s {
 };
 
 // --- Function Prototypes ---
+
+// todo implement additional functions with same name but different signature
+//  i.e. for queues of CPUs rather than processes
+
 // create a new queue and return a pointer to it
 priority_queue_t *new_priority_queue();
 
-// destroy a queue and free its memory
+// destroy the specified queue and free its memory
 void free_priority_queue(priority_queue_t *queue);
+
+// destroy all of the processes stored in a priority queue (not the queue or nodes themselves)
+void free_pq_processes(priority_queue_t *queue);
 
 // insert an element into the queue
 void priority_queue_insert(priority_queue_t *queue, process_t *process, unsigned int priority);

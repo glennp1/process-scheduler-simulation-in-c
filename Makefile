@@ -11,7 +11,7 @@
 CC		= gcc
 CFLAGS	= -I -Wall
 EXE		= allocate
-OBJ		= main.o input_handler.o process.o priority_queue.o
+OBJ		= main.o input_handler.o process.o priority_queue.o simulation.o
 
 # Handles "$ make" and "$ make all"
 all: $(EXE)
@@ -27,6 +27,8 @@ process.o: process.h process.c
 	$(CC) $(CFLAGS) -c process.c
 priority_queue.o: priority_queue.h priority_queue.c
 	$(CC) $(CFLAGS) -c priority_queue.c
+simulation.o: simulation.h simulation.c
+	$(CC) $(CFLAGS) -c simulation.c
 
 # "clean" and "all" don't actually create files called "clean" and "all"
 # and are therefore "Phony Targets"

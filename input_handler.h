@@ -6,10 +6,7 @@
 #define INPUT_HANDLER_H
 
 // --- System Libraries ---
-#include <stdio.h> // for input / output // todo maybe remove?
-#include <stdlib.h> // for atoi
 #include <stdbool.h> // for booleans
-#include <string.h> // for strcmp
 
 // --- Project Libraries ---
 

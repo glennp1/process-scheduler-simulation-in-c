@@ -5,6 +5,10 @@
 // --- Project Libraries ---
 #include "input_handler.h"
 
+// --- System Libraries ---
+#include <stdlib.h> // for atoi
+#include <string.h> // for strcmp
+
 // --- Function Implementations ---
 
 // handles the input of the command line arguments,

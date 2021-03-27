@@ -65,7 +65,7 @@ priority_queue_t *new_priority_queue() {
     return queue;
 }
 
-// destroy a queue and free its memory
+// destroy the specified queue and free its memory
 void free_priority_queue(priority_queue_t *queue) {
     assert(queue != NULL);
     // free each node
@@ -78,6 +78,20 @@ void free_priority_queue(priority_queue_t *queue) {
     }
     // free the queue struct itself
     free(queue);
+}
+
+// destroy all of the processes stored in a priority queue (not the queue or nodes themselves)
+void free_pq_processes(priority_queue_t *queue) {
+    assert(queue != NULL);
+    // free the process stored in each node
+    node_t *node = queue->head;
+    node_t *next;
+    while (node) {
+        next = node->next;
+        free_process(node->process);
+        node->process = NULL;
+        node = next;
+    }
 }
 
 // insert an element into the queue
@@ -169,7 +183,7 @@ bool priority_queue_is_empty(priority_queue_t *queue) {
     return (queue->size==0);
 }
 
-// *** Helper Function Implementations
+// --- Helper Function Implementations ---
 
 // helper function to create a new node and return its address
 node_t *new_pq_node() {
@@ -212,7 +226,7 @@ min_node_pair_t find_min_pq_node(priority_queue_t *queue) {
             min_node
     };
 
-    return (min_node_pair);
+    return min_node_pair;
 }
 
 // helper function to remove "this" node from the priority queue

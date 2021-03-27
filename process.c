@@ -30,9 +30,9 @@ void free_process(process_t *process) {
     free(process);
 }
 
-// loads processes from the specified file and returns them as a priority queue
-// with priorities based on time arrived
-priority_queue_t *queue_processes(char* filename) {
+// loads processes from the specified file and stores them in
+// the specified simulation
+void load_processes(char* filename, simulation_t *simulation) {
 
     // create a new pointer to a new priority queue
     priority_queue_t *queuing_processes = new_priority_queue();
@@ -41,6 +41,7 @@ priority_queue_t *queue_processes(char* filename) {
     unsigned int time_arrived;
     unsigned int process_id;
     unsigned int execution_time;
+    unsigned int time_remaining;
     char parallelisable;
 
     // to keep track of the current process being read in from the file
@@ -58,14 +59,15 @@ priority_queue_t *queue_processes(char* filename) {
         curr_process->time_arrived = time_arrived;
         curr_process->process_id = process_id;
         curr_process->execution_time = execution_time;
+        curr_process->time_remaining = execution_time;
         curr_process->parallelisable = (parallelisable == 'p') ? true : false;
 
-        // add the process to the queuing process with the priority matching the time arrived
-        priority_queue_insert(queuing_processes, curr_process, curr_process->time_arrived);
+        // add the process to the all processes and future arrivals
+        // with the priority matching the time arrived
+        priority_queue_insert(simulation->all_processes, curr_process, curr_process->time_arrived);
+        priority_queue_insert(simulation->future_arrivals, curr_process, curr_process->time_arrived);
     }
 
     // once done close the file
     fclose(file);
-
-    return queuing_processes;
 }
