@@ -37,6 +37,19 @@ void priority_queue_insert(priority_queue_t *queue, process_t process, int prior
 // remove the element with the lowest priority and return the process
 process_t priority_queue_remove_min(priority_queue_t *queue);
 
+// remove the element with the lowest priority if the priority
+// equals a value, then return the process
+// process_t priority_queue_remove_min_if_equals(priority_queue_t *queue, int value);
+
+// todo?
+// remove the element with the lowest priority and return the process
+//process_t priority_queue_remove_min_if_less_than(priority_queue_t *queue);
+
+// remove all the elements with the lowest priority and return the processes in an array
+//process_t[] priority_queue_remove_all_min(priority_queue_t *queue);
+
+
+
 // todo change this to process time remaining???
 // update an elements priority in the queue by process
 // returns whether or not this was succesful (i.e., the process was already

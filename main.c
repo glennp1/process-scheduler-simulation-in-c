@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
     // handle and store input arguments
     input_arguments_t input = handle_input(argc, argv);
 
-    // todo temporary output
+    // todo temporary print
     printf("filename: %s\n", input.filename);
     printf("number of processors: %d\n", input.processors);
     printf("own scheduler: %s\n", input.challenge ? "true" : "false");
@@ -44,6 +44,9 @@ int main(int argc, char *argv[]) {
                removed_process.parallelisable);
     }
 
+    unsigned int curr_time = 0;
+
+    //printf("%d", queuing_processes->head->process.time_arrived);
 
     // execute
 
@@ -63,6 +66,11 @@ int main(int argc, char *argv[]) {
             // todo determine which data structure is appropriate for waiting (needs to be sorted)
 
         // (4) sort the waiting list based on whatever allocator is currently in use
+
+        // todo take best from wait list, compare it with the worst of the running processes
+        // if one is better than other then swap ???
+        // record / print this swap
+
 
         // for each processor in processors
             // (5) add the head of the waiting list to the running list, change state to RUNNING

@@ -27,6 +27,16 @@ struct node_s {
     int priority;
 };
 
+// todo not sure if useful
+typedef struct min_node_pair_s min_node_pair_t;
+
+// a pair of two nodes
+struct min_node_pair_s {
+    node_t *min_prev;
+    node_t *min_node;
+};
+
+
 // a priority_queue points to its first and last nodes, and stores its size
 // i.e., (num. nodes)
 struct priority_queue_s {
@@ -40,9 +50,15 @@ struct priority_queue_s {
 // helper function to create a new node and return its address
 node_t *new_pq_node();
 
+// helper function to find the element with the lowest priority,
+// then return this lowest element and the node prior to it as a min node pair
+min_node_pair_t find_min_pq_node(priority_queue_t *queue);
+
+// helper function to remove "this" node from the priority queue
+void remove_pq_node(priority_queue_t *queue, node_t *prev, node_t *this);
+
 // helper function to clear memory of a node (does not free the node's data)
 void free_pq_node(node_t *node);
-
 
 // --- Function Implementations ---
 
@@ -110,6 +126,24 @@ void priority_queue_insert(priority_queue_t *queue, process_t process, int prior
 
 // remove the element with the lowest priority and return the process
 process_t priority_queue_remove_min(priority_queue_t *queue) {
+
+    // find the min node pair associated with the lowest priority element
+    min_node_pair_t min_node_pair = find_min_pq_node(queue);
+
+    // save the process stored in the min node
+    process_t process = min_node_pair.min_node->process;
+
+    // safely remove the min node
+    remove_pq_node(queue, min_node_pair.min_prev, min_node_pair.min_node);
+
+    // done!
+    return process;
+}
+
+// todo replace node pair with node update using pointers
+// helper function to find the element with the lowest priority,
+// then return this lowest element and the node prior to it as a min node pair
+min_node_pair_t find_min_pq_node(priority_queue_t *queue) {
     assert(queue != NULL);
     assert(queue->size > 0);
 
@@ -123,7 +157,7 @@ process_t priority_queue_remove_min(priority_queue_t *queue) {
     while (node != NULL) {
         priority = node->priority;
 
-        // if we find a lower priority, repalce the current minimums
+        // if we find a lower priority, replace the current minimums
         if (priority < min_priority) {
             min_prev = prev;
             min_node = node;
@@ -134,31 +168,35 @@ process_t priority_queue_remove_min(priority_queue_t *queue) {
         node = node->next;
     }
 
-    // Save the process
-    process_t process = min_node->process;
+    // return min_prev and min_node as a node pair
+    min_node_pair_t min_node_pair = {
+            min_prev,
+            min_node
+    };
 
-    // If we're the head or the tail then we better update that we're removing
-    // this node
+    return (min_node_pair);
+}
 
-    if (min_node == queue->head) {
-        queue->head = queue->head->next;
+// helper function to remove "this" node from the priority queue
+void remove_pq_node(priority_queue_t *queue, node_t *prev, node_t *this) {
+    // If we're the head or the tail then we better update that we're removing this node
+
+    if (this == queue->head) {
+        queue->head = queue->head->next; // update the head
     } else {
-        assert(min_prev != NULL);
-        assert(min_prev->next == min_node);
-        min_prev->next = min_node->next;
+        assert(prev != NULL); // if the previous node exists
+        assert(prev->next == this); // if the previous node is directly before the minimum
+        prev->next = this->next; // the previous node's next is the minimum's next
     }
 
-    if (min_node == queue->tail) {
-        queue->tail = min_prev;
+    if (this == queue->tail) {
+        queue->tail = prev; // update the tail
     }
 
-    queue->size--;
+    queue->size--; // update the queue size
 
     // and we're finished with the node holding this data
-    free_pq_node(min_node);
-
-    // done!
-    return process;
+    free_pq_node(this);
 }
 
 // todo change this to process time remaining???
