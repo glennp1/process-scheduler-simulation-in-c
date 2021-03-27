@@ -17,6 +17,12 @@
 
 // --- Function Prototypes ---
 
+// helper function that starts the simulation
+void start_simulation(priority_queue_t *queuing_processes);
+
+// helper function that performs one tick (second) of the simulation
+void perform_one_simulation_tick(priority_queue_t *queuing_processes, unsigned int curr_tick);
+
 // --- Function Implementations ---
 int main(int argc, char *argv[]) {
 
@@ -29,40 +35,44 @@ int main(int argc, char *argv[]) {
     printf("challenge: %s\n", input.challenge ? "true" : "false");
 
     // read in processes
-    // todo save this in queue
     priority_queue_t *queuing_processes = queue_processes(input.filename);
 
-    // todo temporary print
+    // todo create struct that contains all queues??
+    // todo create struct that encapsulates entire simulation???
+
+    // todo merge this function with main or pass queues to function
+    start_simulation(queuing_processes);
+
+    // todo print final results
+
+    // free input data
+    free_input(input);
+
+    return 0;
+}
+
+// helper function that starts the simulation
+void start_simulation(priority_queue_t *queuing_processes) {
+
+    unsigned int curr_tick = 0;
+    unsigned int total_processes = queuing_processes->size;
+
+    // todo update simulation ending condition
+    // todo should be when the all processes are finished
+    // #processes - #finished == 0
+
     // while the queue is not empty
+    while(!priority_queue_is_empty(queuing_processes)) {
+        perform_one_simulation_tick(queuing_processes, curr_tick);
+        curr_tick++;
+    }
+}
+
+// helper function that performs one tick (second) of the simulation
+void perform_one_simulation_tick(priority_queue_t *queuing_processes, unsigned int curr_tick) {
     process_t *removed_process;
 
-
-    unsigned int curr_time = 0;
-
-    // todo remove processes matching time
-    while(!priority_queue_is_empty(queuing_processes)) {
-
-        printf("** %u **\n", curr_time);
-
-        while (!priority_queue_is_empty(queuing_processes)) {
-            removed_process = priority_queue_remove_min_if_equals(
-                    queuing_processes, curr_time);
-
-            if (removed_process != NULL) {
-                printf("%u %u %u %c\n", removed_process->time_arrived,
-                       removed_process->process_id, removed_process->execution_time,
-                       removed_process->parallelisable ? 'p' : 'n');
-                free_process(removed_process);
-            }
-            else {
-                break;
-            }
-        }
-
-        curr_time++;
-    }
-
-
+    printf("** tick: %u **\n", curr_tick);
 
 //
 //
@@ -78,54 +88,62 @@ int main(int argc, char *argv[]) {
 //        free_process(removed_process);
 //    }
 
-    //printf("%d", queuing_processes->head->process.time_arrived);
+    // for each in running list
+    // check its current process has finished
+    // if it has
+    // (1) change its state to FINISHED, add it to the finished list
+    // if it has not
+    // (2) add it to the waiting list and change its state to WAITING
+    // this ensures both current and new processes are considered together
 
-    // execute
+    // while head of queue matches the tick
+    // (3) dequeue the head, change its state to WAITING and add it to waiting list data structure
 
-    // tick = 0
-    // while there are still processes to execute
+    while (!priority_queue_is_empty(queuing_processes)) {
+        removed_process = priority_queue_remove_min_if_equals(
+                queuing_processes, curr_tick);
 
-        // for each in running list
-            // check its current process has finished
-            // if it has
-                // (1) change its state to FINISHED, add it to the finished list
-            // if it has not
-                // (2) add it to the waiting list and change its state to WAITING
-                // this ensures both current and new processes are considered together
+        if (removed_process != NULL) {
 
-        // while head of queue matches the tick
-            // (3) dequeue the head, change its state to WAITING and add it to waiting list data structure
-            // todo determine which data structure is appropriate for waiting (needs to be sorted)
+            // todo do something...
 
-        // (4) sort the waiting list based on whatever allocator is currently in use
+            // todo temporary print
+            printf("%u %u %u %c\n", removed_process->time_arrived,
+                   removed_process->process_id, removed_process->execution_time,
+                   removed_process->parallelisable ? 'p' : 'n');
 
-        // todo take best from wait list, compare it with the worst of the running processes
-        // if one is better than other then swap ???
-        // record / print this swap
+            // todo
+            // free the process - only if done
+            free_process(removed_process);
+        }
+        else {
+            break;
+        }
+    }
 
 
-        // for each processor in processors
-            // (5) add the head of the waiting list to the running list, change state to RUNNING
 
-        // (6) sort finished, print
-        // ()
+    // (4) sort the waiting list based on whatever allocator is currently in use
 
-        // increment tick
-        // for each processor
-            // (7) decrease the time remaining on it's respective process
+    // todo take best from wait list, compare it with the worst of the running processes
+    // if one is better than other then swap ???
+    // record / print this swap
+
+
+    // for each processor in processors
+    // (5) add the head of the waiting list to the running list, change state to RUNNING
+
+    // (6) sort finished, print
+    // ()
+
+    // increment tick
+    // for each processor
+    // (7) decrease the time remaining on it's respective process
+
+    // todo ongoing output
+
 
     // END OF WHILE
 
 
-    // ongoing output
-
-
-
-
-    // print final results
-
-    // free data
-    free_input(input);
-
-    return 0;
 }
