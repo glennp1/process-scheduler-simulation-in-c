@@ -190,6 +190,14 @@ data_t *priority_queue_remove_min_if_equals(priority_queue_t *queue, unsigned in
 //    return false;
 //}
 
+// swaps the two priority queue pointers with one another
+void swap_priority_queues(priority_queue_t *first, priority_queue_t *second) {
+    priority_queue_t temp = *first;
+    *first = *second;
+    *second = temp;
+}
+
+
 // returns whether the queue contains no elements (true) or some elements (false)
 bool priority_queue_is_empty(priority_queue_t *queue) {
     assert(queue != NULL);

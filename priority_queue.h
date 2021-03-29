@@ -87,6 +87,9 @@ data_t *priority_queue_remove_min_if_equals(priority_queue_t *queue, unsigned in
 // in the queue)
 // bool priority_queue_update(priority_queue_t *queue, process_t process, int new_priority);
 
+// swaps the two priority queue pointers with one another
+void swap_priority_queues(priority_queue_t *first, priority_queue_t *second);
+
 // returns whether the queue contains no elements (true) or some elements (false)
 bool priority_queue_is_empty(priority_queue_t *queue);
 

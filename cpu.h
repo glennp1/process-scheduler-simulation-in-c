@@ -33,8 +33,6 @@ struct cpu_s {
     priority_queue_t *waiting;
     priority_queue_t *shortest_waiting;
     process_t *running;
-    priority_queue_t *finished;
-
 };
 
 // --- Function Prototypes ---

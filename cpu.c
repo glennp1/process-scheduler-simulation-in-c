@@ -40,7 +40,6 @@ void free_cpu(cpu_t *cpu) {
 
     free_priority_queue(cpu->waiting);
     free_priority_queue(cpu->shortest_waiting);
-    free_priority_queue(cpu->finished);
 
     free(cpu);
 }
@@ -64,7 +63,6 @@ cpu_t *new_cpu(int cpu_id) {
     cpu->waiting = new_priority_queue();
     cpu->shortest_waiting = new_priority_queue();
     cpu->running = NULL;
-    cpu->finished = new_priority_queue();
 
     return cpu;
 }
