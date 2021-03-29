@@ -5,12 +5,10 @@
 // --- System Libraries ---
 #include <stdbool.h>
 #include <stdio.h> // todo remove?
-#include <math.h> // todo remove
 
 // --- Project Libraries ---
 #include "input_handler.h"
 #include "process.h"
-#include "priority_queue.h"
 #include "simulation.h"
 
 // --- Constant Definitions ---
@@ -37,16 +35,6 @@ int main(int argc, char *argv[]) {
     start_simulation(simulation);
 
     // todo print final results
-
-    // todo testing ints
-    // todo unsigned int is perfect for 2^32 - 1
-    unsigned int test = 4294967295;
-    printf("%u\n", test);
-
-    // todo unsigned long is perfect for 2^64 - 1
-    unsigned long int test_two = pow(2, 63) * 1.999999999999999;
-    printf("%lu\n", test_two);
-
 
     // free simulation
     free_simulation(simulation);

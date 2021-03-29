@@ -1,7 +1,7 @@
 // COMP30023 Computer Systems
 // 2021 Semester 1
 //
-// Priority Queue implementation for processes
+// Priority Queue implementation for processes and cpus
 // Implementation by Glenn Phillips (820624)
 //
 // Template by Matt Farrugia <matt.farrugia@unimelb.edu.au>
@@ -13,9 +13,17 @@
 #include <stdlib.h>
 #include <assert.h>
 
+// todo remove
+#include <stdio.h>
+
 // --- Project Libraries ---
 #include "priority_queue.h"
 #include "process.h"
+
+// --- Constant Definitions ---
+
+
+
 
 // --- Type Definitions ---
 typedef struct node_s node_t;
@@ -23,7 +31,7 @@ typedef struct node_s node_t;
 // a list node points to the next node in the list, and to some data
 struct node_s {
     node_t *next;
-    process_t *process;
+    data_t *data;
     unsigned int priority;
 };
 
@@ -50,6 +58,9 @@ void remove_pq_node(priority_queue_t *queue, node_t *prev, node_t *this);
 
 // helper function to clear memory of a node (does not free the node's data)
 void free_pq_node(node_t *node);
+
+// helper function to clear the memory of a data item
+void free_data_item(data_t *data);
 
 // --- Function Implementations ---
 
@@ -80,27 +91,29 @@ void free_priority_queue(priority_queue_t *queue) {
     free(queue);
 }
 
-// destroy all of the processes stored in a priority queue (not the queue or nodes themselves)
-void free_pq_processes(priority_queue_t *queue) {
+// destroy all of the data stored in a priority queue (not the queue or nodes themselves)
+void free_pq_data(priority_queue_t *queue) {
     assert(queue != NULL);
-    // free the process stored in each node
+    // free the data stored in each node
     node_t *node = queue->head;
     node_t *next;
     while (node) {
         next = node->next;
-        free_process(node->process);
-        node->process = NULL;
+
+        free_data_item(node->data);
+
+        node->data = NULL;
         node = next;
     }
 }
 
 // insert an element into the queue
-void priority_queue_insert(priority_queue_t *queue, process_t *process, unsigned int priority) {
+void priority_queue_insert(priority_queue_t *queue, data_t *data, unsigned int priority) {
     assert(queue != NULL);
 
     // create and initialise a new queue node
     node_t *node = new_pq_node();
-    node->process = process;
+    node->data = data;
     node->priority = priority;
     node->next = queue->head; // next will be the old first node (may be null)
 
@@ -116,39 +129,39 @@ void priority_queue_insert(priority_queue_t *queue, process_t *process, unsigned
     queue->size++;
 }
 
-// remove the element with the lowest priority and return the process
-process_t *priority_queue_remove_min(priority_queue_t *queue) {
+// remove the element with the lowest priority and return it
+data_t *priority_queue_remove_min(priority_queue_t *queue) {
 
     // find the min node pair associated with the lowest priority element
     min_node_pair_t min_node_pair = find_min_pq_node(queue);
 
-    // save the process stored in the min node
-    process_t *process = min_node_pair.min_node->process;
+    // save the data stored in the min node
+    data_t *data = min_node_pair.min_node->data;
 
     // safely remove the min node
     remove_pq_node(queue, min_node_pair.min_prev, min_node_pair.min_node);
 
-    // return the process
-    return process;
+    // return the data
+    return data;
 }
 
 // tries to remove the element with the lowest priority, if the priority
-// equals a value then return the process, otherwise return a null pointer
-process_t *priority_queue_remove_min_if_equals(priority_queue_t *queue, unsigned int value) {
+// equals a value then return the element, otherwise return a null pointer
+data_t *priority_queue_remove_min_if_equals(priority_queue_t *queue, unsigned int value) {
 
     // find the min node pair associated with the lowest priority element
     min_node_pair_t min_node_pair = find_min_pq_node(queue);
 
     // check if the min node's priority is equal to the designated value
     if (min_node_pair.min_node->priority == value) {
-        // save the process stored in the min node
-        process_t *process = min_node_pair.min_node->process;
+        // save the data stored in the min node
+        data_t *data = min_node_pair.min_node->data;
 
         // safely remove the min node
         remove_pq_node(queue, min_node_pair.min_prev, min_node_pair.min_node);
 
-        // return the process
-        return process;
+        // return the data
+        return data;
     }
     else {
         // return a null pointer
@@ -255,5 +268,23 @@ void remove_pq_node(priority_queue_t *queue, node_t *prev, node_t *this) {
 // helper function to clear memory of a node
 void free_pq_node(node_t *node) {
     free(node);
+}
+
+// todo maybe move this to simulation
+//  just have the queue remove one item then have simulation free it
+// helper function to clear the memory of a data item
+void free_data_item(data_t *data) {
+    assert(data != NULL);
+
+    // Free the data in the case it is a CPU
+    if (data->data_type == CPU) {
+        cpu_t *cpu = (cpu_t*) data;
+        free_cpu(cpu);
+    }
+    // Free the data in the case it is a PROCESS
+    else {
+        process_t *process = (process_t*) data;
+        free_process(process);
+    }
 }
 

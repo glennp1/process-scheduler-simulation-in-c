@@ -15,13 +15,12 @@
 
 
 // --- Type Definitions ---
-typedef struct priority_queue_s priority_queue_t; // forward declaration so it compiles
-
 typedef struct simulation_s simulation_t; // forward declaration so it compiles
 
 typedef struct process_s process_t;
 
 struct process_s {
+    data_t data; // so the process can be typecast as data
     unsigned int time_arrived; // [0, 2^32)
     unsigned int process_id; // [0, 2^32)
     unsigned int execution_time; // [1, 2^32)
@@ -30,14 +29,11 @@ struct process_s {
 };
 
 // --- Function Prototypes ---
-// create a new process and return a pointer to it
-process_t *new_process();
+
+// generate processes based on the file and add them to the simulation
+void generate_processes(char* filename, simulation_t *simulation);
 
 // destroy a process and free its memory
 void free_process(process_t *process);
-
-// loads processes from the specified file and stores them in
-// the specified simulation
-void load_processes(char* filename, simulation_t *simulation);
 
 #endif //PROCESS_H

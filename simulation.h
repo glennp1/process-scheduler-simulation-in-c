@@ -22,17 +22,25 @@ typedef struct cpu_s cpu_t; // forward declaration so it compiles
 typedef struct simulation_s simulation_t;
 
 struct simulation_s {
+    // simulation parameters
+    // todo
+
+    // simulation statistics
+    // todo
+
+    // for processes
     priority_queue_t *all_processes;
     priority_queue_t *future_arrivals;
     priority_queue_t *current_arrivals;
     priority_queue_t *shortest_arrivals;
-
-    // todo change this later to cpu
-    cpu_t *cpu;
-
-    // for printing updates
     priority_queue_t *started_this_tick;
     priority_queue_t *finished_this_tick;
+
+    // for cpus
+    priority_queue_t *all_cpus;
+    priority_queue_t *available_cpus;
+    priority_queue_t *unavailable_cpus;
+    priority_queue_t *emptiest_cpus;
 };
 
 // --- Function Prototypes ---
