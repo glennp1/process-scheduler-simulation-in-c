@@ -9,3 +9,10 @@ https://www.youtube.com/watch?v=ygoRdBBOdYU&ab_channel=MyGeekAdventures
 
 Reading File
 https://www.geeksforgeeks.org/scanf-and-fscanf-in-c-simple-yet-poweful/
+
+Unions - Too hard to implement
+https://www.tutorialspoint.com/cprogramming/c_unions.htm#:~:text=A%20union%20is%20a%20special,memory%20location%20for%20multiple%2Dpurpose.
+
+Reusable lists for different data types - Too hard to implement
+Note that this only allows for nodes to be in a single list at once
+https://stackoverflow.com/questions/29363838/how-to-reuse-code-for-a-list-or-how-to-deal-with-2-different-functions-for-list/29389663#29389663?newreg=7b1b6cae71804097af6c38a755c1eed8
