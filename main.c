@@ -23,11 +23,6 @@ int main(int argc, char *argv[]) {
     // handle and store input arguments
     input_arguments_t input = handle_input(argc, argv);
 
-    // todo temporary print
-    printf("filename: %s\n", input.filename);
-    printf("number of processors: %d\n", input.processors);
-    printf("challenge: %s\n", input.challenge ? "true" : "false");
-
     // create a new simulation
     simulation_t *simulation = new_simulation(input);
 
