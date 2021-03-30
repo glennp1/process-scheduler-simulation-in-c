@@ -13,6 +13,7 @@
 
 // --- Constant Definitions ---
 #define NO_TIME_LEFT 0 // when time is done
+#define STARTING_TICK 0
 
 
 // --- Type Definitions ---
@@ -20,10 +21,10 @@
 // --- Helper Function Prototypes ---
 
 // performs one tick (second) of the specified simulation
-void perform_simulation_tick(simulation_t *simulation, unsigned int curr_tick);
+void perform_simulation_tick(simulation_t *simulation);
 
 // moves all processes that match the current tick to the current arrivals
-void add_current_arrivals(simulation_t *simulation, unsigned int curr_tick);
+void add_current_arrivals(simulation_t *simulation);
 
 // attempts to allocate all of the current arrivals to cpus
 void allocate_processes_to_cpu(simulation_t *simulation);
@@ -32,12 +33,14 @@ cpu_t *remove_emptiest_cpu(simulation_t *simulation);
 
 process_t *remove_shortest_current_arrival(simulation_t *simulation);
 
-void update_all_cpus(simulation_t *simulation, unsigned int curr_tick);
+void update_all_cpus(simulation_t *simulation);
 
 process_t *remove_shortest_waiting(cpu_t *cpu);
 
 // returns if the shortest waiting process should be swapped with the running process
 bool should_swap_running_process(process_t *shortest_waiting, process_t *running_process);
+
+void increment_simulation_tick(simulation_t *simulation);
 
 // prints the specified cpu
 void print_cpu(cpu_t *cpu);
@@ -57,6 +60,7 @@ simulation_t *new_simulation(input_arguments_t input) {
 
     // simulation parameters
     // todo
+    simulation->curr_tick = STARTING_TICK;
 
     // simulation statistics
     // todo
@@ -87,7 +91,6 @@ simulation_t *new_simulation(input_arguments_t input) {
 
 // starts the specified simulation
 void start_simulation(simulation_t *simulation) {
-    unsigned int curr_tick = 0;
 
     // todo currently unused
     unsigned int total_processes = simulation->all_processes->size;
@@ -97,12 +100,11 @@ void start_simulation(simulation_t *simulation) {
     // #processes - #finished == 0
 
     // while the queue is not empty
-    while(curr_tick < 150) {
-        perform_simulation_tick(simulation, curr_tick);
-        curr_tick++;
+    while ((simulation->curr_tick) < 150) {
+        perform_simulation_tick(simulation);
+        increment_simulation_tick(simulation);
     }
 }
-
 
 // destroy a simulation and free all of its associated memory
 void free_simulation(simulation_t *simulation) {
@@ -142,15 +144,15 @@ void free_simulation(simulation_t *simulation) {
 // *** Helper Function Implementations ***
 
 // performs one tick (second) of the specified simulation
-void perform_simulation_tick(simulation_t *simulation, unsigned int curr_tick) {
+void perform_simulation_tick(simulation_t *simulation) {
 
-    add_current_arrivals(simulation, curr_tick);
+    add_current_arrivals(simulation);
 
     // (4) allocate processes to cpus based on whatever allocator is currently in use
     allocate_processes_to_cpu(simulation);
 
     // todo no available processes once here -- fix
-    update_all_cpus(simulation, curr_tick);
+    update_all_cpus(simulation);
 
     // todo ongoing output
     // (6.1) sort finished this tick, print (priority = id)
@@ -159,7 +161,7 @@ void perform_simulation_tick(simulation_t *simulation, unsigned int curr_tick) {
 }
 
 // moves all processes that match the current tick to the current arrivals
-void add_current_arrivals(simulation_t *simulation, unsigned int curr_tick) {
+void add_current_arrivals(simulation_t *simulation) {
 
     process_t *current_arrival;
 
@@ -167,9 +169,10 @@ void add_current_arrivals(simulation_t *simulation, unsigned int curr_tick) {
     // to the current arrivals queue
     while (!priority_queue_is_empty(simulation->future_arrivals)) {
 
+        // todo fix this
         // add the process with the lowest time arrived if it equals the current tick
         current_arrival = (process_t*) priority_queue_remove_min_if_equals(
-                simulation->future_arrivals, curr_tick);
+                simulation->future_arrivals, current_arrival, current_arrival);
 
         // if a process was found
         if (current_arrival != NULL) {
@@ -213,6 +216,15 @@ void allocate_processes_to_cpu(simulation_t *simulation) {
         priority_queue_insert(emptiest_cpu->waiting,
                               (data_t*) shortest_current_arrival,
                               shortest_current_arrival->time_remaining);
+
+        // increment the total time remaining on the cpu
+        emptiest_cpu->total_time_remaining += shortest_current_arrival->time_remaining;
+
+        // add the emptiest cpu back to the available cpus
+        // priority is the total time remaining
+        priority_queue_insert(simulation->available_cpus,
+                              (data_t*) emptiest_cpu,
+                              emptiest_cpu->total_time_remaining);
     }
 }
 
@@ -313,7 +325,7 @@ process_t *remove_shortest_current_arrival(simulation_t *simulation) {
     return shortest_current_arrival;
 }
 
-void update_all_cpus(simulation_t *simulation, unsigned int curr_tick) {
+void update_all_cpus(simulation_t *simulation) {
 
     // while the available cpus queue is not empty
     cpu_t *cpu;
@@ -324,10 +336,6 @@ void update_all_cpus(simulation_t *simulation, unsigned int curr_tick) {
         // remove the first cpu from the available cpus and store it's running process
         cpu = (cpu_t*) priority_queue_remove(simulation->available_cpus);
         running_process = cpu->running;
-
-        // todo remove
-        printf("handling cpu: ");
-        print_cpu(cpu);
 
         // todo update finished processes
         // if the cpu has an active running process
@@ -351,57 +359,52 @@ void update_all_cpus(simulation_t *simulation, unsigned int curr_tick) {
                 running_process = NULL;
 
                 // todo remove
-                printf("tick: %u process finished: ", curr_tick);
+                printf("tick: %u process finished: ", simulation->curr_tick);
                 process_t  *process = (process_t*) priority_queue_remove(simulation->finished_this_tick);
                 print_process(process);
             }
         }
 
         // todo schedule running processes
-        // todo not sure if you just take first in waiting queue or the shortest waiting (locally)
-        // todo DO THIS^^^
-        process_t *shortest_waiting = remove_shortest_waiting(cpu);
+        // if the waiting queue is not empty
+        if (!priority_queue_is_empty(cpu->waiting)) {
 
-        // now if the cpu now has no running process
-        if (running_process == NULL) {
+            // remove the shortest waiting process
+            process_t *shortest_waiting = remove_shortest_waiting(cpu);
 
-            // we can add the first process waiting in the queue to the cpu
-            cpu->running = shortest_waiting;
+            // now if the cpu now has no running process
+            if (running_process == NULL) {
 
-            // add register that it has been added
-            // add it to the added this tick queue
-            priority_queue_insert(simulation->finished_this_tick,
-                                  (data_t*) running_process,
-                                  running_process->time_remaining);
-        }
-        // otherwise if the cpu has a running process already
-        else if (running_process->time_remaining) {
-
-            // if the running process should be swapped
-            if (should_swap_running_process(shortest_waiting, running_process)) {
-                // place the running process back to the waiting queue
-                priority_queue_insert(cpu->waiting,
-                                      (data_t *) running_process,
-                                      running_process->time_remaining);
-
-                // make the shortest waiting process the running process
+                // we can add the shortest waiting process in the queue to the cpu
                 running_process = shortest_waiting;
+
+                // add register that it has been added
+                // add it to the added this tick queue
+                priority_queue_insert(simulation->finished_this_tick,
+                                      (data_t*) running_process,
+                                      running_process->time_remaining);
             }
-            // otherwise
+                // otherwise if the cpu has a running process already
             else {
-                // place the shortest waiting process back in the waiting queue
-                priority_queue_insert(cpu->waiting,
-                                      (data_t*) shortest_waiting,
-                                      shortest_waiting->time_remaining);
+
+                // check if the running process should be swapped
+                if (should_swap_running_process(shortest_waiting, running_process)) {
+                    // place the running process back to the waiting queue
+                    priority_queue_insert(cpu->waiting,
+                                          (data_t *) running_process,
+                                          running_process->time_remaining);
+
+                    // make the shortest waiting process the running process
+                    running_process = shortest_waiting;
+                }
+                    // otherwise
+                else {
+                    // place the shortest waiting process back in the waiting queue
+                    priority_queue_insert(cpu->waiting,
+                                          (data_t*) shortest_waiting,
+                                          shortest_waiting->time_remaining);
+                }
             }
-        }
-
-        // todo increment????
-        // now if the cpu has a running process
-        if (running_process != NULL) {
-
-            // we can decrease the time remaining on the running process by 1
-            running_process->time_remaining--;
         }
 
         // once done add the cpu itself to unavailable
@@ -478,6 +481,36 @@ bool should_swap_running_process(process_t *shortest_waiting, process_t *running
     return false;
 }
 
+void increment_simulation_tick(simulation_t *simulation) {
+
+    // while the available cpus queue is not empty
+    cpu_t *cpu;
+    process_t *running_process;
+
+    while (!priority_queue_is_empty(simulation->available_cpus)) {
+
+        // remove the first cpu from the available cpus and store it's running process
+        cpu = (cpu_t*) priority_queue_remove(simulation->available_cpus);
+        running_process = cpu->running;
+
+        // if there is a running process, decrease the time remaining on it
+        if (running_process != NULL) {
+            running_process->time_remaining--;
+        }
+
+        // once done add the cpu itself to unavailable
+        priority_queue_insert(simulation->unavailable_cpus,
+                              (data_t*) cpu,
+                              cpu->total_time_remaining);
+    }
+
+    // make the unavailable cpus available again
+    swap_priority_queues(simulation->available_cpus, simulation->unavailable_cpus);
+
+    // increment the simulation tick
+    simulation->curr_tick++;
+
+}
 
 
 // prints the specified cpu

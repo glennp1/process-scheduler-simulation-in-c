@@ -24,6 +24,7 @@ typedef struct simulation_s simulation_t;
 struct simulation_s {
     // simulation parameters
     // todo
+    unsigned int curr_tick;
 
     // simulation statistics
     // todo
