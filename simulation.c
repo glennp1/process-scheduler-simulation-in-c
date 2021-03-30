@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdio.h>
+#include <math.h>
 
 // --- Project Libraries ---
 #include "simulation.h"
@@ -15,7 +16,10 @@
 #define NO_TIME_LEFT 0 // when time is done
 #define STARTING_TICK 0
 #define STARTING_PROC_REMAINING 0
-
+#define ONE_TICK 1
+#define DECIMAL_CONVERSION 100
+#define NORMAL_ROUNDING_AMOUNT 0.5
+#define ROUNDING_UP_AMOUNT 1
 
 // --- Type Definitions ---
 
@@ -44,6 +48,14 @@ bool should_swap_running_process(process_t *shortest_waiting, process_t *running
 void display_execution_transcript(simulation_t *simulation);
 
 void increment_simulation_tick(simulation_t *simulation);
+
+void display_performance_statistics(simulation_t *simulation);
+
+// rounds the specified number to two decimal places
+double round_to_two_places(double number);
+
+// rounds up the specified number to the nearest whole number
+double round_up(double number);
 
 // prints the specified cpu
 void print_cpu(cpu_t *cpu);
@@ -110,6 +122,9 @@ void start_simulation(simulation_t *simulation) {
         perform_simulation_tick(simulation);
         increment_simulation_tick(simulation);
     }
+
+    // once done calculate and display the performance statistics
+    display_performance_statistics(simulation);
 }
 
 // destroy a simulation and free all of its associated memory
@@ -353,6 +368,9 @@ void update_all_cpus(simulation_t *simulation) {
                 // decrease the number of processes remaining
                 simulation->proc_remaining--;
 
+                // set the end time for the process
+                cpu->running->end_time = simulation->curr_tick;
+
                 // store that there is no running process
                 // todo maybe change this????
                 cpu->running = NULL;
@@ -494,7 +512,7 @@ void display_execution_transcript(simulation_t *simulation) {
     while (!priority_queue_is_empty(simulation->started_this_tick)) {
         process_to_display = (process_t*) priority_queue_remove_min(simulation->started_this_tick);
 
-        printf("%u,STARTED,pid=%u,remaining_time=%u,cpu=%d\n",
+        printf("%u,RUNNING,pid=%u,remaining_time=%u,cpu=%d\n",
                simulation->curr_tick, process_to_display->process_id, process_to_display->time_remaining,
                process_to_display->cpu_scheduled_on);
     }
@@ -534,6 +552,84 @@ void increment_simulation_tick(simulation_t *simulation) {
 
 }
 
+void display_performance_statistics(simulation_t *simulation) {
+
+    // calculate the performance statistics
+    double average_turnaround_time;
+    double total_turnaround_time = 0;
+    double max_time_overhead = 0;
+    double average_time_overhead;
+    double total_time_overhead = 0;
+    double process_turnaround_time;
+    double process_time_overhead;
+    double num_processes = simulation->all_processes->size;
+    bool first_iteration = true;
+
+    // for each finished process
+    process_t *process;
+    while (!priority_queue_is_empty(simulation->finished)) {
+        process = (process_t*) priority_queue_remove(simulation->finished);
+
+        printf("for process = %u, ", process->process_id);
+
+        // calculate the turnaround time and add it to the total
+        process_turnaround_time = process->end_time - process->time_arrived;
+        total_turnaround_time += process_turnaround_time;
+
+        printf("turnaround time = %lf, ", process_turnaround_time);
+
+        // calculate the time overhead rounded to two decimal places and add it to the total
+        process_time_overhead = round_to_two_places(
+                process_turnaround_time / process->execution_time);
+        total_time_overhead += process_time_overhead;
+
+        printf("time overhead = %lf\n", process_time_overhead);
+
+        // update the maximum time overhead
+        if (first_iteration || process_time_overhead > max_time_overhead) {
+            max_time_overhead = process_time_overhead;
+        }
+        first_iteration = false;
+    }
+
+    // calculate the average turnaround time, rounded up to the nearest integer
+    average_turnaround_time = round_up(
+            total_turnaround_time / num_processes);
+    // round the max time overhead to two decimal places
+    max_time_overhead = round_to_two_places(max_time_overhead);
+    // calculate the average time overhead, rounding to two decimal places
+    average_time_overhead = round_to_two_places(
+            total_time_overhead / num_processes);
+
+    // to calculate the makespan, subtract one from the current tick
+    // because the simulation ends the tick after the last process finishes
+    unsigned int makespan = simulation->curr_tick - ONE_TICK;
+
+    // display the performance statistics
+    printf("Turnaround time %lf\n", average_turnaround_time);
+    printf("Time overhead %lf %lf\n", max_time_overhead, average_time_overhead);
+    printf("Makespan %u\n", makespan);
+}
+
+// rounds the specified number to two decimal places
+double round_to_two_places(double number) {
+
+    // multiple the number by 100 and round it to the nearest int by typecasting
+    unsigned int number_multiplied_by_conversion = (unsigned int) (number * DECIMAL_CONVERSION + NORMAL_ROUNDING_AMOUNT);
+
+    // convert the number back to a double and return it
+    double number_divided_by_conversion = (double) number_multiplied_by_conversion / DECIMAL_CONVERSION;
+    return number_divided_by_conversion;
+}
+
+// rounds up the specified number to the nearest whole number
+double round_up(double number) {
+    // round it up to the nearest int by typecasting
+    unsigned int number_rounded_up = (unsigned int) (number + ROUNDING_UP_AMOUNT);
+
+    // convert back to a double and return
+    return (double) number_rounded_up;
+}
 
 // prints the specified cpu
 void print_cpu(cpu_t *cpu) {

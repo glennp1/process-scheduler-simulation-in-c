@@ -11,6 +11,10 @@
 // --- Project Libraries ---
 #include "process.h"
 
+// --- Constant Definitions ---
+#define NO_CPU -1; // indicates that a process is not scheduled to any cpu
+#define NOT_ENDED 0; // indicates that a process has not ended yet
+
 // --- Helper Function Prototypes ---
 
 // create a new process and return a pointer to it
@@ -78,6 +82,8 @@ process_t *new_process(unsigned int time_arrived, unsigned int process_id,
     process->time_remaining = execution_time;
     process->parallelisable = (parallelisable == 'p') ? true : false;
     process->cpu_scheduled_on = NO_CPU;
+    process->end_time = NOT_ENDED;
+
 
     return process;
 }

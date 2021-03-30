@@ -12,7 +12,6 @@
 #include "simulation.h"
 
 // --- Constant Definitions ---
-#define NO_CPU -1; // indicates that a process is not scheduled to any cpu
 
 // --- Type Definitions ---
 typedef struct simulation_s simulation_t; // forward declaration so it compiles
@@ -27,6 +26,7 @@ struct process_s {
     unsigned int time_remaining; // [0, 2^32)
     bool parallelisable; // true if parallelisable, false if not
     int cpu_scheduled_on; // -1 if none, [0,1024) otherwise
+    unsigned int end_time;
 };
 
 // --- Function Prototypes ---
