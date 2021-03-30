@@ -241,6 +241,7 @@ void allocate_processes_to_cpu(simulation_t *simulation) {
     }
 }
 
+// todo refactor? - make sub function "remove_smallest_by_id" ???
 cpu_t *remove_emptiest_cpu(simulation_t *simulation) {
 
     // remove one of the emptiest cpus
@@ -289,6 +290,7 @@ cpu_t *remove_emptiest_cpu(simulation_t *simulation) {
     return emptiest_cpu;
 }
 
+// todo refactor? - make sub function "remove_smallest_by_id" ???
 process_t *remove_shortest_current_arrival(simulation_t *simulation) {
 
 
@@ -398,17 +400,21 @@ void update_all_cpus(simulation_t *simulation) {
                 // otherwise if the cpu has a running process already
             else {
 
-                // check if the running process should be swapped
+                // if the running process should be swapped
                 if (should_swap_running_process(shortest_waiting, cpu->running)) {
-                    // place the running process back to the waiting queue
+                    // add the running process back to the waiting queue
                     priority_queue_insert(cpu->waiting,
                                           (data_t *) cpu->running,
                                           cpu->running->time_remaining);
 
+//                    // todo remove
+//                    printf("%u,PAUSED,pid=%u,remaining_time=%u\n",
+//                           simulation->curr_tick, cpu->running->process_id, cpu->running->time_remaining);
+
                     // make the shortest waiting process the running process
                     cpu->running = shortest_waiting;
 
-                    // add it to started this tick
+                    // add the shortest waiting process to started this tick
                     priority_queue_insert(simulation->started_this_tick,
                                           (data_t*) cpu->running,
                                           cpu->running->time_remaining);
@@ -433,13 +439,13 @@ void update_all_cpus(simulation_t *simulation) {
     swap_priority_queues(simulation->available_cpus, simulation->unavailable_cpus);
 }
 
-
+// todo refactor? - make sub function "remove_smallest_by_id" ???
 process_t *remove_shortest_waiting(cpu_t *cpu) {
 
     // remove one of the shortest waiting processes
     process_t *shortest_waiting;
     unsigned int shortest_waiting_time_remaining;
-    shortest_waiting = (process_t*) priority_queue_remove(cpu->waiting);
+    shortest_waiting = (process_t*) priority_queue_remove_min(cpu->waiting);
     shortest_waiting_time_remaining = shortest_waiting->time_remaining;
 
     // add it to the shortest waiting, priority is process id
@@ -570,20 +576,23 @@ void display_performance_statistics(simulation_t *simulation) {
     while (!priority_queue_is_empty(simulation->finished)) {
         process = (process_t*) priority_queue_remove(simulation->finished);
 
-        printf("for process = %u, ", process->process_id);
+        // todo remove
+//        printf("for process = %u, ", process->process_id);
 
         // calculate the turnaround time and add it to the total
         process_turnaround_time = process->end_time - process->time_arrived;
         total_turnaround_time += process_turnaround_time;
 
-        printf("turnaround time = %lf, ", process_turnaround_time);
+        // todo remove
+//        printf("turnaround time = %lf, ", process_turnaround_time);
 
         // calculate the time overhead rounded to two decimal places and add it to the total
         process_time_overhead = round_to_two_places(
                 process_turnaround_time / process->execution_time);
         total_time_overhead += process_time_overhead;
 
-        printf("time overhead = %lf\n", process_time_overhead);
+        // todo remove
+//        printf("time overhead = %lf\n", process_time_overhead);
 
         // update the maximum time overhead
         if (first_iteration || process_time_overhead > max_time_overhead) {
@@ -631,6 +640,7 @@ double round_up(double number) {
     return (double) number_rounded_up;
 }
 
+// todo remove
 // prints the specified cpu
 void print_cpu(cpu_t *cpu) {
     printf("cpu id: %d\n",cpu->cpu_id);
@@ -639,6 +649,7 @@ void print_cpu(cpu_t *cpu) {
     }
 }
 
+// todo remove
 // prints the specified process
 void print_process(process_t *process) {
     printf("%u %u %u %c", process->time_arrived,
