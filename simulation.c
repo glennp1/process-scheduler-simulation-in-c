@@ -614,8 +614,8 @@ void display_performance_statistics(simulation_t *simulation) {
     unsigned int makespan = simulation->curr_tick - ONE_TICK;
 
     // display the performance statistics
-    printf("Turnaround time %lf\n", average_turnaround_time);
-    printf("Time overhead %lf %lf\n", max_time_overhead, average_time_overhead);
+    printf("Turnaround time %g\n", average_turnaround_time);
+    printf("Time overhead %g %g\n", max_time_overhead, average_time_overhead);
     printf("Makespan %u\n", makespan);
 }
 
