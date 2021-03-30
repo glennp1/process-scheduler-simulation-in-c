@@ -77,6 +77,7 @@ process_t *new_process(unsigned int time_arrived, unsigned int process_id,
     process->execution_time = execution_time;
     process->time_remaining = execution_time;
     process->parallelisable = (parallelisable == 'p') ? true : false;
+    process->cpu_scheduled_on = NO_CPU;
 
     return process;
 }

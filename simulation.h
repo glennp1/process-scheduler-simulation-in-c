@@ -25,6 +25,7 @@ struct simulation_s {
     // simulation parameters
     // todo
     unsigned int curr_tick;
+    unsigned int proc_remaining;
 
     // simulation statistics
     // todo

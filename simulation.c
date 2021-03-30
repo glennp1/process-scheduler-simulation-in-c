@@ -14,6 +14,7 @@
 // --- Constant Definitions ---
 #define NO_TIME_LEFT 0 // when time is done
 #define STARTING_TICK 0
+#define STARTING_PROC_REMAINING 0
 
 
 // --- Type Definitions ---
@@ -40,6 +41,8 @@ process_t *remove_shortest_waiting(cpu_t *cpu);
 // returns if the shortest waiting process should be swapped with the running process
 bool should_swap_running_process(process_t *shortest_waiting, process_t *running_process);
 
+void display_execution_transcript(simulation_t *simulation);
+
 void increment_simulation_tick(simulation_t *simulation);
 
 // prints the specified cpu
@@ -61,6 +64,7 @@ simulation_t *new_simulation(input_arguments_t input) {
     // simulation parameters
     // todo
     simulation->curr_tick = STARTING_TICK;
+    simulation->proc_remaining = STARTING_PROC_REMAINING;
 
     // simulation statistics
     // todo
@@ -155,9 +159,7 @@ void perform_simulation_tick(simulation_t *simulation) {
     update_all_cpus(simulation);
 
     // todo ongoing output
-    // (6.1) sort finished this tick, print (priority = id)
-
-    // (6.2) sort added this tick, print (priority = id)
+    display_execution_transcript(simulation);
 }
 
 // moves all processes that match the current tick to the current arrivals
@@ -170,9 +172,9 @@ void add_current_arrivals(simulation_t *simulation) {
     while (!priority_queue_is_empty(simulation->future_arrivals)) {
 
         // todo fix this
-        // add the process with the lowest time arrived if it equals the current tick
+        // store the process with the lowest time arrived if it equals the current tick
         current_arrival = (process_t*) priority_queue_remove_min_if_equals(
-                simulation->future_arrivals, current_arrival, current_arrival);
+                simulation->future_arrivals, simulation->curr_tick);
 
         // if a process was found
         if (current_arrival != NULL) {
@@ -182,9 +184,8 @@ void add_current_arrivals(simulation_t *simulation) {
                                   (data_t*) current_arrival,
                                   current_arrival->time_remaining);
 
-            // todo remove
-            printf("added: ");
-            print_process(current_arrival);
+            // increment the number of processes remaining
+            simulation->proc_remaining++;
         }
         else {
             break;
@@ -201,15 +202,7 @@ void allocate_processes_to_cpu(simulation_t *simulation) {
 
         cpu_t *emptiest_cpu = remove_emptiest_cpu(simulation);
 
-        // todo remove
-        printf("removed: ");
-        print_cpu(emptiest_cpu);
-
         process_t *shortest_current_arrival = remove_shortest_current_arrival(simulation);
-
-        // todo remove
-        printf("removed: ");
-        print_process(shortest_current_arrival);
 
         // add shortest current arrival to the waiting queue of the emptiest cpu
         // priority is time remaining
@@ -219,6 +212,9 @@ void allocate_processes_to_cpu(simulation_t *simulation) {
 
         // increment the total time remaining on the cpu
         emptiest_cpu->total_time_remaining += shortest_current_arrival->time_remaining;
+
+        // set the cpu scheduled on
+        shortest_current_arrival->cpu_scheduled_on = emptiest_cpu->cpu_id;
 
         // add the emptiest cpu back to the available cpus
         // priority is the total time remaining
@@ -354,14 +350,12 @@ void update_all_cpus(simulation_t *simulation) {
                                       (data_t*) running_process,
                                       running_process->time_remaining);
 
+                // decrease the number of processes remaining
+                simulation->proc_remaining--;
+
                 // store that there is no running process
                 // todo maybe change this????
                 running_process = NULL;
-
-                // todo remove
-                printf("tick: %u process finished: ", simulation->curr_tick);
-                process_t  *process = (process_t*) priority_queue_remove(simulation->finished_this_tick);
-                print_process(process);
             }
         }
 
@@ -479,6 +473,27 @@ bool should_swap_running_process(process_t *shortest_waiting, process_t *running
     }
     // Otherwise it is false
     return false;
+}
+
+void display_execution_transcript(simulation_t *simulation) {
+    process_t *process_to_display;
+
+    // display finished this tick
+    while (!priority_queue_is_empty(simulation->finished_this_tick)) {
+        process_to_display = (process_t*) priority_queue_remove_min(simulation->finished_this_tick);
+
+        printf("%u,FINISHED,pid=%u,proc_remaining=%u\n",
+               simulation->curr_tick, process_to_display->process_id, simulation->proc_remaining);
+    }
+
+    // display started this tick
+    while (!priority_queue_is_empty(simulation->started_this_tick)) {
+        process_to_display = (process_t*) priority_queue_remove_min(simulation->started_this_tick);
+
+        printf("%u,STARTED,pid=%u,remaining_time=%u,cpu=%d\n",
+               simulation->curr_tick, process_to_display->process_id, process_to_display->time_remaining,
+               process_to_display->cpu_scheduled_on);
+    }
 }
 
 void increment_simulation_tick(simulation_t *simulation) {

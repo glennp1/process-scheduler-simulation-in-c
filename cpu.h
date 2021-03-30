@@ -27,8 +27,8 @@ struct cpu_s {
     data_t data; // so the process can be typecast as data
 
     // todo add other variables
-    int cpu_id;
-    unsigned int total_time_remaining;
+    int cpu_id; // [0,1024)
+    unsigned int total_time_remaining; // [0, 2^32)
 
     priority_queue_t *waiting;
     priority_queue_t *shortest_waiting;
