@@ -172,7 +172,6 @@ void perform_simulation_tick(simulation_t *simulation) {
     // (4) allocate processes to cpus based on whatever allocator is currently in use
     allocate_processes_to_cpu(simulation);
 
-    // todo no available processes once here -- fix
     update_all_cpus(simulation);
 
     // todo ongoing output
@@ -477,10 +476,10 @@ process_t *remove_shortest_waiting(cpu_t *cpu) {
     while(!priority_queue_is_empty(cpu->shortest_waiting)) {
 
         // get each shortest waiting
-        process_to_add_back = (process_t*) priority_queue_remove_min(cpu->shortest_waiting);
+        process_to_add_back = (process_t*) priority_queue_remove(cpu->shortest_waiting);
 
         // add it back to waiting, priority is time remaining
-        priority_queue_insert(cpu->shortest_waiting,
+        priority_queue_insert(cpu->waiting,
                               (data_t*) process_to_add_back,
                               process_to_add_back->time_remaining);
     }
