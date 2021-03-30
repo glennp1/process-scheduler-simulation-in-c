@@ -129,6 +129,19 @@ void priority_queue_insert(priority_queue_t *queue, data_t *data, unsigned int p
     queue->size++;
 }
 
+// remove the first element irrespective of priority
+data_t *priority_queue_remove(priority_queue_t *queue) {
+
+    // save the data stored in the head
+    data_t *data = queue->head->data;
+
+    // safely remove the head
+    remove_pq_node(queue, NULL, queue->head);
+
+    // return the data
+    return data;
+}
+
 // remove the element with the lowest priority and return it
 data_t *priority_queue_remove_min(priority_queue_t *queue) {
 

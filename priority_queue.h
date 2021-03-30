@@ -65,6 +65,9 @@ void free_pq_data(priority_queue_t *queue);
 // insert an element into the queue
 void priority_queue_insert(priority_queue_t *queue, data_t *data, unsigned int priority);
 
+// remove the first element irrespective of priority
+data_t *priority_queue_remove(priority_queue_t *queue);
+
 // remove the element with the lowest priority and return it
 data_t *priority_queue_remove_min(priority_queue_t *queue);
 

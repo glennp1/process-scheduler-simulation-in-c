@@ -32,7 +32,7 @@ struct simulation_s {
     priority_queue_t *all_processes;
     priority_queue_t *future_arrivals;
     priority_queue_t *current_arrivals;
-    priority_queue_t *shortest_arrivals;
+    priority_queue_t *shortest_current_arrivals;
     priority_queue_t *started_this_tick;
     priority_queue_t *finished_this_tick;
     priority_queue_t *finished;
