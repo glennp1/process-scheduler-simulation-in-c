@@ -230,7 +230,7 @@ void allocate_processes_to_cpu(simulation_t *simulation) {
         // increment the total time remaining on the cpu
         emptiest_cpu->total_time_remaining += shortest_current_arrival->time_remaining;
 
-        // set the cpu scheduled on
+        // have the process record the cpu it is scheduled on
         shortest_current_arrival->cpu_scheduled_on = emptiest_cpu->cpu_id;
 
         // add the emptiest cpu back to the available cpus
@@ -329,10 +329,10 @@ process_t *remove_shortest_current_arrival(simulation_t *simulation) {
     while(!priority_queue_is_empty(simulation->shortest_current_arrivals)) {
 
         // get each shortest current arrival
-        process_to_add_back = (process_t*) priority_queue_remove_min(simulation->shortest_current_arrivals);
+        process_to_add_back = (process_t*) priority_queue_remove(simulation->shortest_current_arrivals);
 
         // add it back to current arrivals, priority is time remaining
-        priority_queue_insert(simulation->shortest_current_arrivals,
+        priority_queue_insert(simulation->current_arrivals,
                               (data_t*) process_to_add_back,
                               process_to_add_back->time_remaining);
     }
