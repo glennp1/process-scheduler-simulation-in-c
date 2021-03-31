@@ -37,6 +37,8 @@ struct cpu_s {
 // generate the specified number of cpus and add them to the simulation
 void generate_cpus(int num_cpus, simulation_t *simulation);
 
+// removes the cpu from the specified queue that is the emptiest and has
+// the lowest id
 cpu_t *remove_emptiest_and_lowest_id_cpu(priority_queue_t *cpu_queue);
 
 // destroy a cpu and free all of its associated memory

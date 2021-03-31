@@ -39,8 +39,11 @@ struct process_s {
 // generate processes based on the file and add them to the simulation
 void generate_processes(char* filename, simulation_t *simulation);
 
+// creates the specified sub process and returns it, based on a parent process
 process_t *create_subprocess(process_t *parent, unsigned int execution_time, unsigned int subprocess_id);
 
+// removes the process with the shortest time remaining and the
+// lowest id from the specified queue
 process_t *remove_shortest_and_lowest_id_process(priority_queue_t *process_queue);
 
 // destroy a process and free its memory

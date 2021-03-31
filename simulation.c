@@ -33,22 +33,31 @@ void perform_simulation_tick(simulation_t *simulation);
 // moves all processes that match the current tick to the current arrivals
 void add_current_arrivals(simulation_t *simulation);
 
+// generates all of the subprocess of a parent process and adds them to the simulation
 void generate_and_add_subprocesses(simulation_t *simulation, process_t *parent);
 
 // attempts to allocate all of the current arrivals to cpus
 void allocate_processes_to_cpu(simulation_t *simulation);
 
+// updates the running and waiting processes of all of the cpus
+// first by checking what has finished
+// then by comparing the waiting queue with any running process
 void update_all_cpus(simulation_t *simulation);
 
+// informs a parent process that its child process has finished
+// and then checks if the parent itself is done
 void tell_parent_child_finished(simulation_t *simulation, process_t *child);
 
 // returns if the shortest waiting process should be swapped with the running process
 bool should_swap_running_process(process_t *shortest_waiting, process_t *running_process);
 
+// displays the execution transcript as per the assignment instructions
 void display_execution_transcript(simulation_t *simulation);
 
+// increments the simulation tick, thus updating the time remaining on all running processes
 void increment_simulation_tick(simulation_t *simulation);
 
+// calculates and displays the performance statistics as specified in the requirements
 void display_performance_statistics(simulation_t *simulation);
 
 // rounds the specified number to two decimal places
@@ -56,12 +65,6 @@ double round_to_two_places(double number);
 
 // rounds up the specified number to the nearest whole number
 double round_up(double number);
-
-// prints the specified cpu
-void print_cpu(cpu_t *cpu);
-
-// prints the specified process
-void print_process(process_t *process);
 
 // --- Function Implementations ---
 
@@ -190,6 +193,7 @@ void add_current_arrivals(simulation_t *simulation) {
     }
 }
 
+// generates all of the subprocess of a parent process and adds them to the simulation
 void generate_and_add_subprocesses(simulation_t *simulation, process_t *parent) {
 
     // calculate number of subprocesses
@@ -275,6 +279,9 @@ void allocate_processes_to_cpu(simulation_t *simulation) {
     }
 }
 
+// updates the running and waiting processes of all of the cpus
+// first by checking what has finished
+// then by comparing the waiting queue with any running process
 void update_all_cpus(simulation_t *simulation) {
 
     // while the available cpus queue is not empty
@@ -378,6 +385,8 @@ void update_all_cpus(simulation_t *simulation) {
     swap_priority_queues(simulation->available_cpus, simulation->unavailable_cpus);
 }
 
+// informs a parent process that its child process has finished
+// and then checks if the parent itself is done
 void tell_parent_child_finished(simulation_t *simulation, process_t *child) {
 
     // decrease the number of children not finished
@@ -433,6 +442,7 @@ bool should_swap_running_process(process_t *shortest_waiting, process_t *running
     return false;
 }
 
+// displays the execution transcript as per the assignment instructions
 void display_execution_transcript(simulation_t *simulation) {
     process_t *process_to_display;
 
@@ -466,6 +476,7 @@ void display_execution_transcript(simulation_t *simulation) {
     }
 }
 
+// increments the simulation tick, thus updating the time remaining on all running processes
 void increment_simulation_tick(simulation_t *simulation) {
 
     // while the available cpus queue is not empty
@@ -500,6 +511,7 @@ void increment_simulation_tick(simulation_t *simulation) {
 
 }
 
+// calculates and displays the performance statistics as specified in the requirements
 void display_performance_statistics(simulation_t *simulation) {
 
     // calculate the performance statistics

@@ -26,8 +26,11 @@ typedef struct {
 } input_arguments_t;
 
 // --- Function Prototypes ---
+// handles the input of the command line arguments,
+// returns the input stored in a struct of type input_arguments_t
 input_arguments_t handle_input(int num_arguments, char *arguments[]);
 
+// frees the memory allocated for the input
 void free_input(input_arguments_t input);
 
 #endif //INPUT_HANDLER_H

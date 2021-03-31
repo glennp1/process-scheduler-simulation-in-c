@@ -57,6 +57,7 @@ void generate_processes(char* filename, simulation_t *simulation) {
     fclose(file);
 }
 
+// creates the specified sub process and returns it, based on a parent process
 process_t *create_subprocess(process_t *parent, unsigned int execution_time, unsigned int subprocess_id) {
 
     process_t *subprocess = malloc(sizeof *subprocess);
@@ -83,6 +84,8 @@ process_t *create_subprocess(process_t *parent, unsigned int execution_time, uns
     return subprocess;
 }
 
+// removes the process with the shortest time remaining and the
+// lowest id from the specified queue
 process_t *remove_shortest_and_lowest_id_process(priority_queue_t *processes) {
 
     // *** get the shortest processes

@@ -33,6 +33,8 @@ void generate_cpus(int num_cpus, simulation_t *simulation) {
     }
 }
 
+// removes the cpu from the specified queue with that is the emptiest and has
+// the lowest id
 cpu_t *remove_emptiest_and_lowest_id_cpu(priority_queue_t *cpus) {
 
     // *** get the emptiest cpus
