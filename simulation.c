@@ -168,6 +168,9 @@ void add_current_arrivals(simulation_t *simulation) {
         // if a process was found
         if (current_arrival != NULL) {
 
+            // increment the number of processes remaining
+            simulation->proc_remaining++;
+
             // if the process is parallelisable
             if (current_arrival->parallelisable) {
                 generate_and_add_subprocesses(simulation, current_arrival);
@@ -179,9 +182,6 @@ void add_current_arrivals(simulation_t *simulation) {
                 priority_queue_insert(simulation->current_arrivals,
                                       (data_t*) current_arrival,
                                       current_arrival->time_remaining);
-
-                // increment the number of processes remaining
-                simulation->proc_remaining++;
             }
         }
         else {
