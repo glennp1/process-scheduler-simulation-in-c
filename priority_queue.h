@@ -50,9 +50,6 @@ struct priority_queue_s {
 
 // --- Function Prototypes ---
 
-// todo implement additional functions with same name but different signature
-//  i.e. for queues of CPUs rather than processes
-
 // create a new queue and return a pointer to it
 priority_queue_t *new_priority_queue();
 

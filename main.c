@@ -3,8 +3,6 @@
 //
 
 // --- System Libraries ---
-#include <stdbool.h>
-#include <stdio.h> // todo remove?
 
 // --- Project Libraries ---
 #include "input_handler.h"
@@ -25,8 +23,6 @@ int main(int argc, char *argv[]) {
 
     // create a new simulation
     simulation_t *simulation = new_simulation(input);
-
-    // todo merge this function with main or pass queues to function
     start_simulation(simulation);
 
     // free simulation

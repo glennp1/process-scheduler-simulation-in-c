@@ -13,9 +13,6 @@
 #include <stdlib.h>
 #include <assert.h>
 
-// todo remove
-#include <stdio.h>
-
 // --- Project Libraries ---
 #include "priority_queue.h"
 #include "process.h"
@@ -35,7 +32,6 @@ struct node_s {
     unsigned int priority;
 };
 
-// todo not sure if useful
 typedef struct min_node_pair_s min_node_pair_t;
 
 // a pair of two nodes
@@ -270,8 +266,6 @@ void free_pq_node(node_t *node) {
     free(node);
 }
 
-// todo maybe move this to simulation
-//  just have the queue remove one item then have simulation free it
 // helper function to clear the memory of a data item
 void free_data_item(data_t *data) {
     assert(data != NULL);

@@ -69,7 +69,7 @@ process_t *create_subprocess(process_t *parent, unsigned int execution_time, uns
     subprocess->process_id = parent->process_id;
     subprocess->execution_time = execution_time;
     subprocess->time_remaining = execution_time;
-    subprocess->parallelisable = true; // todo decide on this
+    subprocess->parallelisable = true;
     subprocess->cpu_scheduled_on = NO_CPU;
     subprocess->end_time = NOT_ENDED;
 
@@ -85,7 +85,7 @@ process_t *create_subprocess(process_t *parent, unsigned int execution_time, uns
 
 process_t *remove_shortest_and_lowest_id_process(priority_queue_t *processes) {
 
-    // todo get the shortest processes
+    // *** get the shortest processes
     priority_queue_t *shortest_processes = new_priority_queue();
     unsigned int shortest_process_time_remaining;
 
@@ -114,7 +114,7 @@ process_t *remove_shortest_and_lowest_id_process(priority_queue_t *processes) {
         }
     }
 
-    // todo get the lowest id processes
+    // *** get the lowest id processes
     priority_queue_t *lowest_id_processes = new_priority_queue();
     unsigned int lowest_id_process_id;
 
@@ -143,11 +143,11 @@ process_t *remove_shortest_and_lowest_id_process(priority_queue_t *processes) {
         }
     }
 
-    // todo get the lowest sub id process
+    // *** get the lowest sub id process
     // get the lowest sub id process, from the lowest id processes
     process_t *shortest_and_lowest_id_process = (process_t *) priority_queue_remove_min(lowest_id_processes);
 
-    // todo add back to processes
+    // *** add back to processes
     // now add all the shortest processes back to the processes
     process_t *process_to_add_back;
     while(!priority_queue_is_empty(shortest_processes)) {
@@ -173,7 +173,7 @@ process_t *remove_shortest_and_lowest_id_process(priority_queue_t *processes) {
                               process_to_add_back->time_remaining);
     }
 
-    // todo free the two queues used
+    // *** free the two queues used
     free_priority_queue(shortest_processes);
     free_priority_queue(lowest_id_processes);
 

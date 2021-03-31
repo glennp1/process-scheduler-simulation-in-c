@@ -25,8 +25,6 @@ typedef struct cpu_s cpu_t;
 
 struct cpu_s {
     data_t data; // so the process can be typecast as data
-
-    // todo add other variables
     int cpu_id; // [0,1024)
     unsigned int total_time_remaining; // [0, 2^32)
 

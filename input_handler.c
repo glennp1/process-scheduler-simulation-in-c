@@ -51,8 +51,7 @@ input_arguments_t handle_input(int num_arguments, char *arguments[]) {
 
         // if the current argument is something else
         else {
-            // todo handle error
-            // can print to stderr??? rather than stdout which is assessed
+            // error
         }
     }
     return(input);

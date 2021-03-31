@@ -74,12 +74,8 @@ simulation_t *new_simulation(input_arguments_t input) {
     assert(simulation);
 
     // simulation parameters
-    // todo
     simulation->curr_tick = STARTING_TICK;
     simulation->proc_remaining = STARTING_PROC_REMAINING;
-
-    // simulation statistics
-    // todo
 
     // for processes
     simulation->all_processes = new_priority_queue();
@@ -106,11 +102,6 @@ simulation_t *new_simulation(input_arguments_t input) {
 // starts the specified simulation
 void start_simulation(simulation_t *simulation) {
 
-    // todo update simulation ending condition
-    // todo should be when the all processes are finished
-    // #processes - #finished == 0
-
-    // todo update for parallelisable
     // while the the number of finished processes does not equal the total number
     while (simulation->finished->size != simulation->all_processes->size) {
 
@@ -125,12 +116,6 @@ void start_simulation(simulation_t *simulation) {
 // destroy a simulation and free all of its associated memory
 void free_simulation(simulation_t *simulation) {
     assert(simulation != NULL);
-
-    // free all of the simulation parameters
-    // todo
-
-    // free all of the simulation statistics
-    // todo
 
     // free all of the individual processes
     free_pq_data(simulation->all_processes);
@@ -150,9 +135,6 @@ void free_simulation(simulation_t *simulation) {
     free_priority_queue(simulation->all_cpus);
     free_priority_queue(simulation->available_cpus);
     free_priority_queue(simulation->unavailable_cpus);
-
-    // todo free each other part of struct
-    // input ????
 }
 
 // *** Helper Function Implementations ***
@@ -167,7 +149,6 @@ void perform_simulation_tick(simulation_t *simulation) {
 
     update_all_cpus(simulation);
 
-    // todo ongoing output
     display_execution_transcript(simulation);
 }
 
@@ -180,7 +161,6 @@ void add_current_arrivals(simulation_t *simulation) {
     // to the current arrivals queue
     while (!priority_queue_is_empty(simulation->future_arrivals)) {
 
-        // todo fix this
         // store the process with the lowest time arrived if it equals the current tick
         current_arrival = (process_t*) priority_queue_remove_min_if_equals(
                 simulation->future_arrivals, simulation->curr_tick);
@@ -305,7 +285,7 @@ void update_all_cpus(simulation_t *simulation) {
         // remove the first cpu from the available cpus and store it's running process
         cpu = (cpu_t*) priority_queue_remove(simulation->available_cpus);
 
-        // todo check for finished processes
+        // *** check for finished processes
         // if the cpu has an active running process
         if (cpu->running != NULL) {
 
@@ -341,7 +321,7 @@ void update_all_cpus(simulation_t *simulation) {
             }
         }
 
-        // todo schedule running processes
+        // *** schedule running processes
         // if the waiting queue is not empty
         if (!priority_queue_is_empty(cpu->waiting)) {
 

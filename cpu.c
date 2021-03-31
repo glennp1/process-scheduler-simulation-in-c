@@ -35,7 +35,7 @@ void generate_cpus(int num_cpus, simulation_t *simulation) {
 
 cpu_t *remove_emptiest_and_lowest_id_cpu(priority_queue_t *cpus) {
 
-    // todo get the emptiest cpus
+    // *** get the emptiest cpus
     priority_queue_t *emptiest_cpus = new_priority_queue();
     unsigned int emptiest_cpu_total_time_remaining;
 
@@ -64,11 +64,11 @@ cpu_t *remove_emptiest_and_lowest_id_cpu(priority_queue_t *cpus) {
         }
     }
 
-    // todo get the lowest id cpu
+    // *** get the lowest id cpu
     // get the lowest id cpu, from the emptiest cpus
     cpu_t *emptiest_and_lowest_id_cpu = (cpu_t *) priority_queue_remove_min(emptiest_cpus);
 
-    // todo add back to cpus
+    // *** add back to cpus
     // now add all the emptiest cpus back to the cpus
     cpu_t *cpu_to_add_back;
     while(!priority_queue_is_empty(emptiest_cpus)) {
@@ -82,7 +82,7 @@ cpu_t *remove_emptiest_and_lowest_id_cpu(priority_queue_t *cpus) {
                               cpu_to_add_back->total_time_remaining);
     }
 
-    // todo free the queue used
+    // *** free the queue used
     free_priority_queue(emptiest_cpus);
 
     return emptiest_and_lowest_id_cpu;
@@ -111,7 +111,6 @@ cpu_t *new_cpu(int cpu_id) {
 
     cpu->cpu_id = cpu_id;
 
-    // todo initialise total time remaining as 0 ???
     cpu->total_time_remaining = 0;
 
     cpu->waiting = new_priority_queue();
