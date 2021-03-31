@@ -160,30 +160,15 @@ void free_simulation(simulation_t *simulation) {
 // performs one tick (second) of the specified simulation
 void perform_simulation_tick(simulation_t *simulation) {
 
-//    // todo remove
-//    printf("%u.0\n", simulation->curr_tick);
-
     add_current_arrivals(simulation);
-
-//    // todo remove
-//    printf("%u.1\n", simulation->curr_tick);
 
     // (4) allocate processes to cpus based on whatever allocator is currently in use
     allocate_processes_to_cpu(simulation);
 
-//    // todo remove
-//    printf("%u.2\n", simulation->curr_tick);
-
     update_all_cpus(simulation);
-
-//    // todo remove
-//    printf("%u.3\n", simulation->curr_tick);
 
     // todo ongoing output
     display_execution_transcript(simulation);
-
-//    // todo remove
-//    printf("%u.4\n", simulation->curr_tick);
 }
 
 // moves all processes that match the current tick to the current arrivals
@@ -270,8 +255,7 @@ void generate_and_add_subprocesses(simulation_t *simulation, process_t *parent) 
                               (data_t*) child,
                               child->time_remaining);
 
-        // increment the number of processes remaining
-        simulation->proc_remaining++;
+        // we do not increment the number of processes remaining for a child process
 
         // also add the child subprocess to all processes
         priority_queue_insert(simulation->all_processes,
@@ -328,25 +312,28 @@ void update_all_cpus(simulation_t *simulation) {
             // and if the running process of that cpu has finished (time remaining = 0)
             if (cpu->running->time_remaining == NO_TIME_LEFT) {
 
-                // add it to the finished this tick queue
-                priority_queue_insert(simulation->finished_this_tick,
-                                      (data_t*) cpu->running,
-                                      cpu->running->time_remaining);
-
                 // add it to the finished queue
                 priority_queue_insert(simulation->finished,
                                       (data_t*) cpu->running,
                                       cpu->running->time_remaining);
 
-                // decrease the number of processes remaining
-                simulation->proc_remaining--;
-
                 // set the end time for the process
                 cpu->running->end_time = simulation->curr_tick;
 
-                // if the process was a subprocess, inform the parent
+                // if the process was a subprocess
                 if (cpu->running->parent_process != NULL) {
+                    // inform the parent
                     tell_parent_child_finished(simulation, cpu->running);
+                }
+                // otherwise if it is a normal process
+                else {
+                    // add it to the finished this tick queue, so it is printed
+                    priority_queue_insert(simulation->finished_this_tick,
+                                          (data_t*) cpu->running,
+                                          cpu->running->time_remaining);
+
+                    // decrease the number of processes remaining
+                    simulation->proc_remaining--;
                 }
 
                 // store that there is no running process
@@ -382,10 +369,6 @@ void update_all_cpus(simulation_t *simulation) {
                     priority_queue_insert(cpu->waiting,
                                           (data_t *) cpu->running,
                                           cpu->running->time_remaining);
-
-//                    // todo remove
-//                    printf("%u,PAUSED,pid=%u,remaining_time=%u\n",
-//                           simulation->curr_tick, cpu->running->process_id, cpu->running->time_remaining);
 
                     // make the shortest waiting process the running process
                     cpu->running = shortest_waiting;
@@ -431,9 +414,13 @@ void tell_parent_child_finished(simulation_t *simulation, process_t *child) {
         // store the finish time of the parent as the finish time of the last child
         child->parent_process->end_time = child->end_time;
 
-        // todo not sure if need to print???? Or count toward remaining?
+        // add it to the finished this tick queue, so it is printed
+        priority_queue_insert(simulation->finished_this_tick,
+                              (data_t*) child->parent_process,
+                              child->parent_process->time_remaining);
+
         // decrease the number of processes remaining
-//        simulation->proc_remaining--;
+        simulation->proc_remaining--;
 
     }
 
@@ -542,23 +529,14 @@ void display_performance_statistics(simulation_t *simulation) {
         // We are only interested in normal/parent processes (those with no parent)
         if (process->parent_process == NULL) {
 
-            // todo remove
-//        printf("for process = %u, ", process->process_id);
-
             // calculate the turnaround time and add it to the total
             process_turnaround_time = process->end_time - process->time_arrived;
             total_turnaround_time += process_turnaround_time;
-
-            // todo remove
-//        printf("turnaround time = %lf, ", process_turnaround_time);
 
             // calculate the time overhead rounded to two decimal places and add it to the total
             process_time_overhead = round_to_two_places(
                     process_turnaround_time / process->execution_time);
             total_time_overhead += process_time_overhead;
-
-            // todo remove
-//        printf("time overhead = %lf\n", process_time_overhead);
 
             // update the maximum time overhead
             if (first_iteration || process_time_overhead > max_time_overhead) {
@@ -614,22 +592,4 @@ double round_up(double number) {
 
     // otherwise we round up the number and return it
     return (double) (number_int + ROUNDING_UP_AMOUNT);
-}
-
-// todo remove
-// prints the specified cpu
-void print_cpu(cpu_t *cpu) {
-    printf("cpu id: %d\n",cpu->cpu_id);
-    if (cpu->running != NULL) {
-        printf("running process: %u", cpu->running->process_id);
-    }
-}
-
-// todo remove
-// prints the specified process
-void print_process(process_t *process) {
-    printf("%u %u %u %c", process->time_arrived,
-           process->process_id, process->execution_time,
-           process->parallelisable ? 'p' : 'n');
-    printf(" (%u)\n", process->time_remaining);
 }
