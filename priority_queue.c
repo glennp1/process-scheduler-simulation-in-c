@@ -182,27 +182,6 @@ data_t *priority_queue_remove_min_if_equals(priority_queue_t *queue, unsigned in
     }
 }
 
-
-// todo change this to process time remaining???
-// update an elements priority in the queue by process
-// returns whether or not this was succesful (i.e., the process was already
-// in the queue)
-//bool priority_queue_update(priority_queue_t *queue, process_t process, int new_priority) {
-//    assert(queue != NULL);
-//
-//    node_t *node = queue->head;
-//    while (node != NULL) {
-//        if (node->process == process) {
-//            node->priority = new_priority;
-//            return true;
-//        }
-//
-//        node = node->next;
-//    }
-//
-//    return false;
-//}
-
 // swaps the two priority queue pointers with one another
 void swap_priority_queues(priority_queue_t *first, priority_queue_t *second) {
     priority_queue_t temp = *first;

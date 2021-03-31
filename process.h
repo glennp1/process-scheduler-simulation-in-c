@@ -26,13 +26,20 @@ struct process_s {
     unsigned int time_remaining; // [0, 2^32)
     bool parallelisable; // true if parallelisable, false if not
     int cpu_scheduled_on; // -1 if none, [0,1024) otherwise
-    unsigned int end_time;
+    unsigned int end_time; // the time the process ends, used to calculate statistics
+
+    // (only for parallelisable processes)
+    process_t *parent_process; // stores the parent process, indicating that this is a sub-process
+    unsigned int sub_process_id; // [0, 2^32)
+    unsigned int num_children_not_finished; // stores the number of children that haven't finished running yet
 };
 
 // --- Function Prototypes ---
 
 // generate processes based on the file and add them to the simulation
 void generate_processes(char* filename, simulation_t *simulation);
+
+process_t *remove_shortest_and_lowest_id_process(priority_queue_t *process_queue);
 
 // destroy a process and free its memory
 void free_process(process_t *process);

@@ -31,16 +31,12 @@ void perform_simulation_tick(simulation_t *simulation);
 // moves all processes that match the current tick to the current arrivals
 void add_current_arrivals(simulation_t *simulation);
 
+void create_and_add_subprocesses(simulation_t *simulation, process_t *process);
+
 // attempts to allocate all of the current arrivals to cpus
 void allocate_processes_to_cpu(simulation_t *simulation);
 
-cpu_t *remove_emptiest_cpu(simulation_t *simulation);
-
-process_t *remove_shortest_current_arrival(simulation_t *simulation);
-
 void update_all_cpus(simulation_t *simulation);
-
-process_t *remove_shortest_waiting(cpu_t *cpu);
 
 // returns if the shortest waiting process should be swapped with the running process
 bool should_swap_running_process(process_t *shortest_waiting, process_t *running_process);
@@ -85,7 +81,6 @@ simulation_t *new_simulation(input_arguments_t input) {
     simulation->all_processes = new_priority_queue();
     simulation->future_arrivals = new_priority_queue();
     simulation->current_arrivals = new_priority_queue();
-    simulation->shortest_current_arrivals = new_priority_queue();
     simulation->started_this_tick = new_priority_queue();
     simulation->finished_this_tick = new_priority_queue();
     simulation->finished = new_priority_queue();
@@ -97,7 +92,6 @@ simulation_t *new_simulation(input_arguments_t input) {
     simulation->all_cpus = new_priority_queue();
     simulation->available_cpus = new_priority_queue();
     simulation->unavailable_cpus = new_priority_queue();
-    simulation->emptiest_cpus = new_priority_queue();
 
     // generate the specified number of cpus and add them to the simulation
     generate_cpus(input.processors, simulation);
@@ -144,7 +138,6 @@ void free_simulation(simulation_t *simulation) {
     free_priority_queue(simulation->all_processes);
     free_priority_queue(simulation->future_arrivals);
     free_priority_queue(simulation->current_arrivals);
-    free_priority_queue(simulation->shortest_current_arrivals);
     free_priority_queue(simulation->started_this_tick);
     free_priority_queue(simulation->finished_this_tick);
     free_priority_queue(simulation->finished);
@@ -156,7 +149,6 @@ void free_simulation(simulation_t *simulation) {
     free_priority_queue(simulation->all_cpus);
     free_priority_queue(simulation->available_cpus);
     free_priority_queue(simulation->unavailable_cpus);
-    free_priority_queue(simulation->emptiest_cpus);
 
     // todo free each other part of struct
     // input ????
@@ -169,13 +161,25 @@ void perform_simulation_tick(simulation_t *simulation) {
 
     add_current_arrivals(simulation);
 
+//    // todo remove
+//    printf("%u.1\n", simulation->curr_tick);
+
     // (4) allocate processes to cpus based on whatever allocator is currently in use
     allocate_processes_to_cpu(simulation);
 
+//    // todo remove
+//    printf("%u.2\n", simulation->curr_tick);
+
     update_all_cpus(simulation);
+
+//    // todo remove
+//    printf("%u.3\n", simulation->curr_tick);
 
     // todo ongoing output
     display_execution_transcript(simulation);
+
+//    // todo remove
+//    printf("%u.4\n", simulation->curr_tick);
 }
 
 // moves all processes that match the current tick to the current arrivals
@@ -202,11 +206,35 @@ void add_current_arrivals(simulation_t *simulation) {
 
             // increment the number of processes remaining
             simulation->proc_remaining++;
+
+//            // if the process is parallelisable
+//            if (current_arrival->parallelisable) {
+//                // todo if process is parallelisable
+//
+//                create_and_add_subprocesses(simulation, current_arrival);
+//
+//            }
+//            // Otherwise
+//            else {
+//                // add it to the current arrivals queue
+//                priority_queue_insert(simulation->current_arrivals,
+//                                      (data_t*) current_arrival,
+//                                      current_arrival->time_remaining);
+//
+//                // increment the number of processes remaining
+//                simulation->proc_remaining++;
+//            }
         }
         else {
             break;
         }
     }
+}
+
+void create_and_add_subprocesses(simulation_t *simulation, process_t *process) {
+
+
+
 }
 
 // attempts to allocate all of the current arrivals to cpus
@@ -216,9 +244,9 @@ void allocate_processes_to_cpu(simulation_t *simulation) {
     while ((!priority_queue_is_empty(simulation->current_arrivals)) &&
             (!priority_queue_is_empty(simulation->available_cpus))) {
 
-        cpu_t *emptiest_cpu = remove_emptiest_cpu(simulation);
+        cpu_t *emptiest_cpu = remove_emptiest_and_lowest_id_cpu(simulation->available_cpus);
 
-        process_t *shortest_current_arrival = remove_shortest_current_arrival(simulation);
+        process_t *shortest_current_arrival = remove_shortest_and_lowest_id_process(simulation->current_arrivals);
 
         // add shortest current arrival to the waiting queue of the emptiest cpu
         // priority is time remaining
@@ -238,105 +266,6 @@ void allocate_processes_to_cpu(simulation_t *simulation) {
                               (data_t*) emptiest_cpu,
                               emptiest_cpu->total_time_remaining);
     }
-}
-
-// todo refactor? - make sub function "remove_smallest_by_id" ???
-cpu_t *remove_emptiest_cpu(simulation_t *simulation) {
-
-    // remove one of the emptiest cpus
-    cpu_t *emptiest_cpu;
-    unsigned int emptiest_cpu_total_time_remaining;
-    emptiest_cpu = (cpu_t*) priority_queue_remove_min(simulation->available_cpus);
-    emptiest_cpu_total_time_remaining = emptiest_cpu->total_time_remaining;
-
-    // add it to the emptiest cpus, priority is cpu id
-    priority_queue_insert(simulation->emptiest_cpus,
-                          (data_t*) emptiest_cpu,
-                          emptiest_cpu->cpu_id);
-
-    // add any other cpus that have a matching total time remaining to emptiest cpus
-    while(!priority_queue_is_empty(simulation->available_cpus)) {
-        emptiest_cpu = (cpu_t*) priority_queue_remove_min_if_equals(
-                simulation->available_cpus, emptiest_cpu_total_time_remaining);
-
-        if (emptiest_cpu != NULL) {
-            // add it to the emptiest cpus, priority is cpu id
-            priority_queue_insert(simulation->emptiest_cpus,
-                                  (data_t*) emptiest_cpu,
-                                  emptiest_cpu->cpu_id);
-        }
-        else {
-            break;
-        }
-    }
-
-    // update the emptiest cpu to be the emptiest cpu with the lowest cpu id
-    emptiest_cpu = (cpu_t*) priority_queue_remove_min(simulation->emptiest_cpus);
-
-    // now add all the emptiest cpus back to available cpus
-    cpu_t *cpu_to_add_back;
-    while(!priority_queue_is_empty(simulation->emptiest_cpus)) {
-
-        // get each emptiest cpu
-        cpu_to_add_back = (cpu_t*) priority_queue_remove_min(simulation->emptiest_cpus);
-
-        // add it back to available cpus, priority is total time remaining
-        priority_queue_insert(simulation->available_cpus,
-                              (data_t*) cpu_to_add_back,
-                              cpu_to_add_back->total_time_remaining);
-    }
-
-    return emptiest_cpu;
-}
-
-// todo refactor? - make sub function "remove_smallest_by_id" ???
-process_t *remove_shortest_current_arrival(simulation_t *simulation) {
-
-
-    // remove one of the shortest current arrivals
-    process_t *shortest_current_arrival;
-    unsigned int shortest_current_arrival_time_remaining;
-    shortest_current_arrival = (process_t*) priority_queue_remove_min(simulation->current_arrivals);
-    shortest_current_arrival_time_remaining = shortest_current_arrival->time_remaining;
-
-    // add it to the shortest current arrivals, priority is process id
-    priority_queue_insert(simulation->shortest_current_arrivals,
-                          (data_t*) shortest_current_arrival,
-                          shortest_current_arrival->process_id);
-
-    // add any other processes that have a matching time remaining to shortest currents arrivals
-    while(!priority_queue_is_empty(simulation->current_arrivals)) {
-        shortest_current_arrival = (process_t*) priority_queue_remove_min_if_equals(
-                simulation->current_arrivals, shortest_current_arrival_time_remaining);
-
-        if (shortest_current_arrival != NULL) {
-            // add it to the shortest current arrivals, priority is process id
-            priority_queue_insert(simulation->shortest_current_arrivals,
-                                  (data_t*) shortest_current_arrival,
-                                  shortest_current_arrival->process_id);
-        }
-        else {
-            break;
-        }
-    }
-
-    // update the shortest current arrival to be the shortest current arrival with the lowest process id
-    shortest_current_arrival = (process_t *) priority_queue_remove_min(simulation->shortest_current_arrivals);
-
-    // now add all the shortest current arrivals back to current arrivals
-    process_t *process_to_add_back;
-    while(!priority_queue_is_empty(simulation->shortest_current_arrivals)) {
-
-        // get each shortest current arrival
-        process_to_add_back = (process_t*) priority_queue_remove(simulation->shortest_current_arrivals);
-
-        // add it back to current arrivals, priority is time remaining
-        priority_queue_insert(simulation->current_arrivals,
-                              (data_t*) process_to_add_back,
-                              process_to_add_back->time_remaining);
-    }
-
-    return shortest_current_arrival;
 }
 
 void update_all_cpus(simulation_t *simulation) {
@@ -383,7 +312,7 @@ void update_all_cpus(simulation_t *simulation) {
         if (!priority_queue_is_empty(cpu->waiting)) {
 
             // remove the shortest waiting process
-            process_t *shortest_waiting = remove_shortest_waiting(cpu);
+            process_t *shortest_waiting = remove_shortest_and_lowest_id_process(cpu->waiting);
 
             // now if the cpu now has no running process
             if (cpu->running == NULL) {
@@ -401,6 +330,7 @@ void update_all_cpus(simulation_t *simulation) {
 
                 // if the running process should be swapped
                 if (should_swap_running_process(shortest_waiting, cpu->running)) {
+
                     // add the running process back to the waiting queue
                     priority_queue_insert(cpu->waiting,
                                           (data_t *) cpu->running,
@@ -438,66 +368,27 @@ void update_all_cpus(simulation_t *simulation) {
     swap_priority_queues(simulation->available_cpus, simulation->unavailable_cpus);
 }
 
-// todo refactor? - make sub function "remove_smallest_by_id" ???
-process_t *remove_shortest_waiting(cpu_t *cpu) {
-
-    // remove one of the shortest waiting processes
-    process_t *shortest_waiting;
-    unsigned int shortest_waiting_time_remaining;
-    shortest_waiting = (process_t*) priority_queue_remove_min(cpu->waiting);
-    shortest_waiting_time_remaining = shortest_waiting->time_remaining;
-
-    // add it to the shortest waiting, priority is process id
-    priority_queue_insert(cpu->shortest_waiting,
-                          (data_t*) shortest_waiting,
-                          shortest_waiting->process_id);
-
-    // add any other processes that have a matching time remaining to shortest waiting
-    while(!priority_queue_is_empty(cpu->waiting)) {
-        shortest_waiting = (process_t*) priority_queue_remove_min_if_equals(
-                cpu->waiting, shortest_waiting_time_remaining);
-
-        if (shortest_waiting != NULL) {
-            // add it to the shortest waiting, priority is process id
-            priority_queue_insert(cpu->shortest_waiting,
-                                  (data_t*) shortest_waiting,
-                                  shortest_waiting->process_id);
-        }
-        else {
-            break;
-        }
-    }
-
-    // update the shortest waiting to be the shortest waiting with the lowest process id
-    shortest_waiting = (process_t *) priority_queue_remove_min(cpu->shortest_waiting);
-
-    // now add all the shortest waiting back to waiting
-    process_t *process_to_add_back;
-    while(!priority_queue_is_empty(cpu->shortest_waiting)) {
-
-        // get each shortest waiting
-        process_to_add_back = (process_t*) priority_queue_remove(cpu->shortest_waiting);
-
-        // add it back to waiting, priority is time remaining
-        priority_queue_insert(cpu->waiting,
-                              (data_t*) process_to_add_back,
-                              process_to_add_back->time_remaining);
-    }
-
-    return shortest_waiting;
-}
-
 // returns if the shortest waiting process should be swapped with the running process
 bool should_swap_running_process(process_t *shortest_waiting, process_t *running_process) {
     // we compare its time remaining with the shortest waiting
     if (shortest_waiting->time_remaining < running_process->time_remaining) {
         return true;
     }
-        // in the case of ties use process id to resolve
-    else if (shortest_waiting->time_remaining == running_process->time_remaining &&
-             shortest_waiting->process_id < running_process->process_id) {
-        return true;
+        // in the case of time remaining ties
+    else if (shortest_waiting->time_remaining == running_process->time_remaining) {
+
+        // use process id to resolve
+        if (shortest_waiting->process_id < running_process->process_id) {
+            return true;
+        }
+
+        // in the case of process id ties, use sub process id to resolve
+        else if (shortest_waiting->process_id == running_process->process_id &&
+                shortest_waiting->sub_process_id < running_process->sub_process_id) {
+            return true;
+        }
     }
+
     // Otherwise it is false
     return false;
 }

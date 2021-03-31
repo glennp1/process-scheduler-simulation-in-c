@@ -75,21 +75,6 @@ data_t *priority_queue_remove_min(priority_queue_t *queue);
 // equals a value then return the element, otherwise return a null pointer
 data_t *priority_queue_remove_min_if_equals(priority_queue_t *queue, unsigned int value);
 
-// todo?
-// remove the element with the lowest priority and return the process
-//process_t priority_queue_remove_min_if_less_than(priority_queue_t *queue);
-
-// remove all the elements with the lowest priority and return the processes in an array
-//process_t[] priority_queue_remove_all_min(priority_queue_t *queue);
-
-
-
-// todo change this to process time remaining???
-// update an elements priority in the queue by process
-// returns whether or not this was succesful (i.e., the process was already
-// in the queue)
-// bool priority_queue_update(priority_queue_t *queue, process_t process, int new_priority);
-
 // swaps the two priority queue pointers with one another
 void swap_priority_queues(priority_queue_t *first, priority_queue_t *second);
 

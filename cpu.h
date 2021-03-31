@@ -31,7 +31,6 @@ struct cpu_s {
     unsigned int total_time_remaining; // [0, 2^32)
 
     priority_queue_t *waiting;
-    priority_queue_t *shortest_waiting;
     process_t *running;
 };
 
@@ -39,6 +38,8 @@ struct cpu_s {
 
 // generate the specified number of cpus and add them to the simulation
 void generate_cpus(int num_cpus, simulation_t *simulation);
+
+cpu_t *remove_emptiest_and_lowest_id_cpu(priority_queue_t *cpu_queue);
 
 // destroy a cpu and free all of its associated memory
 void free_cpu(cpu_t *cpu);

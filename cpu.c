@@ -33,13 +33,67 @@ void generate_cpus(int num_cpus, simulation_t *simulation) {
     }
 }
 
+cpu_t *remove_emptiest_and_lowest_id_cpu(priority_queue_t *cpus) {
+
+    // todo get the emptiest cpus
+    priority_queue_t *emptiest_cpus = new_priority_queue();
+    unsigned int emptiest_cpu_total_time_remaining;
+
+    // remove one of the emptiest from the cpus, save its total time remaining
+    cpu_t *emptiest_cpu = (cpu_t*) priority_queue_remove_min(cpus);
+    emptiest_cpu_total_time_remaining = emptiest_cpu->total_time_remaining;
+
+    // add it to the emptiest cpus, priority is cpu id
+    priority_queue_insert(emptiest_cpus,
+                          (data_t*) emptiest_cpu,
+                          emptiest_cpu->cpu_id);
+
+    // add any other cpus that have a matching total time remaining to emptiest cpus
+    while(!priority_queue_is_empty(cpus)) {
+        emptiest_cpu = (cpu_t*) priority_queue_remove_min_if_equals(
+                cpus, emptiest_cpu_total_time_remaining);
+
+        if (emptiest_cpu != NULL) {
+            // add it to the emptiest cpus, priority is cpu id
+            priority_queue_insert(emptiest_cpus,
+                                  (data_t*) emptiest_cpu,
+                                  emptiest_cpu->cpu_id);
+        }
+        else {
+            break;
+        }
+    }
+
+    // todo get the lowest id cpu
+    // get the lowest id cpu, from the emptiest cpus
+    cpu_t *emptiest_and_lowest_id_cpu = (cpu_t *) priority_queue_remove_min(emptiest_cpus);
+
+    // todo add back to cpus
+    // now add all the emptiest cpus back to the cpus
+    cpu_t *cpu_to_add_back;
+    while(!priority_queue_is_empty(emptiest_cpus)) {
+
+        // get each emptiest cpu
+        cpu_to_add_back = (cpu_t *) priority_queue_remove(emptiest_cpus);
+
+        // add it back to cpus, priority is total time remaining
+        priority_queue_insert(cpus,
+                              (data_t*) cpu_to_add_back,
+                              cpu_to_add_back->total_time_remaining);
+    }
+
+    // todo free the queue used
+    free_priority_queue(emptiest_cpus);
+
+    return emptiest_and_lowest_id_cpu;
+
+}
 
 // destroy a cpu and free all of its associated memory
 void free_cpu(cpu_t *cpu) {
     assert(cpu != NULL);
 
     free_priority_queue(cpu->waiting);
-    free_priority_queue(cpu->shortest_waiting);
 
     free(cpu);
 }
@@ -61,7 +115,6 @@ cpu_t *new_cpu(int cpu_id) {
     cpu->total_time_remaining = 0;
 
     cpu->waiting = new_priority_queue();
-    cpu->shortest_waiting = new_priority_queue();
     cpu->running = NULL;
 
     return cpu;
