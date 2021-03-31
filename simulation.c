@@ -460,6 +460,7 @@ void display_execution_transcript(simulation_t *simulation) {
     while (!priority_queue_is_empty(simulation->finished_this_tick)) {
         process_to_display = (process_t*) priority_queue_remove_min(simulation->finished_this_tick);
 
+        // only parent or normal processes are printed so we don't worry about subprocess id
         printf("%u,FINISHED,pid=%u,proc_remaining=%u\n",
                simulation->curr_tick, process_to_display->process_id, simulation->proc_remaining);
     }
@@ -468,9 +469,20 @@ void display_execution_transcript(simulation_t *simulation) {
     while (!priority_queue_is_empty(simulation->started_this_tick)) {
         process_to_display = (process_t*) priority_queue_remove_min(simulation->started_this_tick);
 
-        printf("%u,RUNNING,pid=%u,remaining_time=%u,cpu=%d\n",
-               simulation->curr_tick, process_to_display->process_id, process_to_display->time_remaining,
-               process_to_display->cpu_scheduled_on);
+        // if the process is a subprocess
+        if (process_to_display->parent_process != NULL) {
+
+            // display both the process id and the subprocess id
+            printf("%u,RUNNING,pid=%u.%u,remaining_time=%u,cpu=%d\n",
+                   simulation->curr_tick, process_to_display->process_id, process_to_display->sub_process_id,
+                   process_to_display->time_remaining, process_to_display->cpu_scheduled_on);
+        }
+        // otherwise just display normally
+        else {
+            printf("%u,RUNNING,pid=%u,remaining_time=%u,cpu=%d\n",
+                   simulation->curr_tick, process_to_display->process_id, process_to_display->time_remaining,
+                   process_to_display->cpu_scheduled_on);
+        }
     }
 }
 
