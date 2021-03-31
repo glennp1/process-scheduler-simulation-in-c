@@ -604,7 +604,16 @@ double round_to_two_places(double number) {
 
 // rounds up the specified number to the nearest whole number
 double round_up(double number) {
-    return ceil(number);
+    // round it to the nearest int by typecasting
+    unsigned int number_int = (unsigned int) number;
+
+    // if the number stay the same then it is already a whole number
+    if (number == (double) number_int) {
+        return number;
+    }
+
+    // otherwise we round up the number and return it
+    return (double) (number_int + ROUNDING_UP_AMOUNT);
 }
 
 // todo remove
