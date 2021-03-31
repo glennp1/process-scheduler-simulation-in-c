@@ -29,8 +29,6 @@ int main(int argc, char *argv[]) {
     // todo merge this function with main or pass queues to function
     start_simulation(simulation);
 
-    // todo print final results
-
     // free simulation
     free_simulation(simulation);
 

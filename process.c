@@ -57,6 +57,32 @@ void generate_processes(char* filename, simulation_t *simulation) {
     fclose(file);
 }
 
+process_t *create_subprocess(process_t *parent, unsigned int execution_time, unsigned int subprocess_id) {
+
+    process_t *subprocess = malloc(sizeof *subprocess);
+    // check the subprocess was successfully created
+    assert(subprocess);
+
+    // Add each of the fields to it
+    subprocess->data.data_type = PROCESS;
+    subprocess->time_arrived = parent->time_arrived;
+    subprocess->process_id = parent->process_id;
+    subprocess->execution_time = execution_time;
+    subprocess->time_remaining = execution_time;
+    subprocess->parallelisable = true; // todo decide on this
+    subprocess->cpu_scheduled_on = NO_CPU;
+    subprocess->end_time = NOT_ENDED;
+
+    // important subprocess fields
+    subprocess->parent_process = parent;
+    subprocess->sub_process_id = subprocess_id;
+
+    // not needed
+    subprocess->num_children_not_finished = NO_CHILDREN;
+
+    return subprocess;
+}
+
 process_t *remove_shortest_and_lowest_id_process(priority_queue_t *processes) {
 
     // todo get the shortest processes
@@ -106,7 +132,7 @@ process_t *remove_shortest_and_lowest_id_process(priority_queue_t *processes) {
         lowest_id_process = (process_t*) priority_queue_remove_min_if_equals(
                 shortest_processes, lowest_id_process_id);
 
-        if (shortest_process != NULL) {
+        if (lowest_id_process != NULL) {
             // add it to the lowest id processes, priority is sub process id
             priority_queue_insert(lowest_id_processes,
                                   (data_t*) lowest_id_process,
